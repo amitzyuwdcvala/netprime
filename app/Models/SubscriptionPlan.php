@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
 class SubscriptionPlan extends Model
 {
+    use HasUuids;
     //
     protected $fillable = [
-        'id',
         'name',
         'amount',
         'days',
@@ -19,6 +20,11 @@ class SubscriptionPlan extends Model
     ];
 
     protected $casts = [
+        'amount' => 'decimal:2',
+        'days' => 'integer',
         'features' => 'array',
+        'is_popular' => 'boolean',
+        'is_active' => 'boolean',
+        'sort_order' => 'integer',
     ];
 }

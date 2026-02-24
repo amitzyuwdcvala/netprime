@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('user_subscriptions', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignId('android_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('plan_id')->constrained('subscription_plans');
-            $table->foreignId('payment_gateway_id')->constrained('payment_gateways');
+            $table->string('android_id')->index();
+            $table->foreign('android_id')->references('android_id')->on('users')->onDelete('cascade');
+            $table->foreignUuid('plan_id')->constrained('subscription_plans');
+            $table->foreignUuid('payment_gateway_id')->constrained('payment_gateways');
 
             $table->string('gateway_order_id')->nullable();
             $table->string('gateway_payment_id')->nullable();
@@ -28,8 +29,11 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->index(['android_id', 'status']);
-            $table->index(['status', 'end_date']);
+            // Performance indexes
+            $table->index(['android_id', 'status'], 'idx_user_subscriptions_android_status');
+            $table->index(['status', 'end_date'], 'idx_user_subscriptions_status_end_date');
+            $table->index('end_date', 'idx_user_subscriptions_end_date');
+            $table->index('created_at', 'idx_user_subscriptions_created_at');
         });
     }
 

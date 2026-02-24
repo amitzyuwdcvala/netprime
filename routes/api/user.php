@@ -2,16 +2,17 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AdNetworkController;
+use App\Http\Controllers\API\VideoAccessController;
 
 /**
  * API User Routes
- * Protected routes - auth:sanctum required
+ * Protected routes - android_auth required
  */
 
+Route::post('/video/access', [VideoAccessController::class, 'access'])->name('api.video.access');
+
 Route::prefix('self')->group(function () {
-    // Route::get('details', [UserController::class, 'self_information']);
-    // Route::get('profile', [UserController::class, 'view_profile']);
-    // Route::post('profile', [UserController::class, 'manage_profile']);
+
 });
 
 /** Ad Settings (public for now - move to auth if needed) */

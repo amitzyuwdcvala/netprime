@@ -2,17 +2,20 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasUuids;
+    use HasFactory, Notifiable;
+
+    /**
+     * Primary key is android_id (string, not UUID)
+     */
+    public $incrementing = false;
+    protected $keyType = 'string';
+    protected $primaryKey = 'android_id';
 
     /**
      * The attributes that are mass assignable.
@@ -23,7 +26,6 @@ class User extends Authenticatable
         'android_id',
         'is_vip',
         'video_click_count',
-        'order_id',
     ];
 
     /**
@@ -32,7 +34,6 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $hidden = [
-        'android_id',
         'remember_token',
     ];
 
@@ -44,18 +45,79 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'is_vip' => 'boolean',
+            'video_click_count' => 'integer',
         ];
     }
 
-    public function getSubscription()
+    /**
+     * Get the primary key for the model.
+     *
+     * @return string
+     */
+    public function getKeyName()
     {
-        return $this->hasOne(UserSubscription::class);
+        return 'android_id';
     }
 
-    public function getPaymentTransaction()
+    /**
+     * Get active subscription for user
+     */
+    public function subscription()
     {
-        return $this->hasOne(PaymentTransaction::class);
+        return $this->hasOne(UserSubscription::class, 'android_id', 'android_id')
+            ->where('status', \App\Constants\SubscriptionStatus::ACTIVE)
+            ->where('end_date', '>=', now()->toDateString());
+    }
+
+    /**
+     * Get all subscriptions for user
+     */
+    public function subscriptions()
+    {
+        return $this->hasOne(UserSubscription::class, 'android_id', 'android_id');
+    }
+
+    /**
+     * Get payment transactions for user
+     */
+    public function paymentTransactions()
+    {
+        return $this->hasMany(PaymentTransaction::class, 'android_id', 'android_id');
+    }
+
+    /**
+     * Get active subscription (alias for subscription method)
+     */
+    public function activeSubscription()
+    {
+        return $this->subscription();
+    }
+
+    /**
+     * Check if user has active VIP subscription
+     */
+    public function hasActiveSubscription(): bool
+    {
+        if (!$this->is_vip) {
+            return false;
+        }
+
+        return $this->activeSubscription()->exists();
+    }
+
+    /**
+     * Check if subscription is expired
+     */
+    public function isSubscriptionExpired(): bool
+    {
+        $subscription = $this->subscriptions;
+
+        if (!$subscription) {
+            return true;
+        }
+
+        return $subscription->status === \App\Constants\SubscriptionStatus::EXPIRED
+            || $subscription->end_date < now()->toDateString();
     }
 }

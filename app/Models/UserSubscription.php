@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
 class UserSubscription extends Model
 {
-    //
+    use HasUuids;
+
     protected $fillable = [
-        'id',
         'android_id',
         'plan_id',
         'payment_gateway_id',
@@ -21,9 +22,16 @@ class UserSubscription extends Model
         'status',
     ];
 
+    protected $casts = [
+        'paid_amount' => 'decimal:2',
+        'days' => 'integer',
+        'start_date' => 'date',
+        'end_date' => 'date',
+    ];
+
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'android_id', 'android_id');
     }
 
     public function plan()
@@ -34,5 +42,14 @@ class UserSubscription extends Model
     public function paymentGateway()
     {
         return $this->belongsTo(PaymentGateway::class);
+    }
+
+    /**
+     * Check if subscription is active
+     */
+    public function isActive(): bool
+    {
+        return $this->status === \App\Constants\SubscriptionStatus::ACTIVE
+            && $this->end_date >= now()->toDateString();
     }
 }

@@ -1,14 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\SubscriptionController;
 
 /**
  * API Subscription Routes
- * Protected routes - auth:sanctum required
+ * Protected routes - android_auth required
  */
 
-// Route::prefix('subscription')->group(function () {
-//     Route::get('/plans', [SubscriptionController::class, 'get_plans']);
-//     Route::post('/create-order', [SubscriptionController::class, 'create_order']);
-//     Route::get('/status', [SubscriptionController::class, 'subscription_status']);
-// });
+Route::prefix('subscription')->group(function () {
+    Route::get('/plans', [SubscriptionController::class, 'get_plans'])->name('api.subscription.plans');
+});

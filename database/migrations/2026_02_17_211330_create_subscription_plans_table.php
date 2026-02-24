@@ -21,6 +21,9 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->integer('sort_order')->default(0);
             $table->timestamps();
+            
+            // Performance index
+            $table->index(['is_active', 'sort_order'], 'idx_subscription_plans_active_sort');
         });
     }
 

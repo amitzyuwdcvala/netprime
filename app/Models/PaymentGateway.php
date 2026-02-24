@@ -10,13 +10,18 @@ class PaymentGateway extends Model
     use HasUuids;
     //
     protected $fillable = [
-        'id',
         'name',
+        'code',
         'display_name',
         'is_active',
-        'priority',
+        'sort_order',
         'credentials',
         'environment',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+        'credentials' => 'array',
     ];
 
     public function paymentTransactions()

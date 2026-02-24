@@ -9,14 +9,13 @@ Route::prefix('v1')->middleware(['route_classifier'])->group(function () {
     require __DIR__ . '/api/auth.php';
 
     /** Protected routes */
-    Route::middleware(['auth:sanctum'])->group(function () {
+    Route::middleware(['android_auth'])->group(function () {
         require __DIR__ . '/api/user.php';
         require __DIR__ . '/api/subscription.php';
         require __DIR__ . '/api/payment.php';
     });
 
-    /** Webhook endpoints */
-    Route::prefix('webhook')->group(function () {
-        // Route::post('razorpay', [WebhookController::class, 'razorpay'])->name('webhook.razorpay');
-    });
+    /** Webhook endpoints - Public but signature verified */
+    require __DIR__ . '/api/webhook.php';
 });
+
