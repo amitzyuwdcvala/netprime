@@ -1,6 +1,3 @@
-{{-- Canvas View - Offcanvas form renderer --}}
-{{-- Consumes $form from Schema class --}}
-
 @if(isset($form))
     <form id="{{ $form['formID'] }}" action="{{ $form['saveRoute'] }}" method="POST" enctype="multipart/form-data">
         @csrf
@@ -126,7 +123,6 @@
         </div>
     </form>
 
-    {{-- jQuery Validate rules injection --}}
     @if(!empty($form['validations']))
     <script>
         $(document).ready(function() {

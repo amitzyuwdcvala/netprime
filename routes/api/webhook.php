@@ -3,11 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\WebhookController;
 
-/**
- * API Webhook Routes
- * Public routes - but signature verified
- */
-
 Route::prefix('webhook')->group(function () {
     Route::post('/razorpay', [WebhookController::class, 'razorpay'])->name('api.webhook.razorpay');
     Route::post('/payu', [WebhookController::class, 'payu'])->name('api.webhook.payu');

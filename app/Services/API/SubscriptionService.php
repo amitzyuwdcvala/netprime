@@ -11,6 +11,12 @@ class SubscriptionService
 {
     use ApiResponses;
 
+    /** Cache key for active plans list (invalidate when plans are updated in admin). */
+    public const CACHE_KEY_PLANS = 'active_subscription_plans';
+
+    /** Cache TTL for plans (5 minutes). */
+    public const CACHE_TTL_PLANS = 300;
+
     /**
      * Get all active subscription plans
      */
@@ -21,7 +27,7 @@ class SubscriptionService
             Log::info('[Plans] Request received', ['android_id' => $androidId]);
 
             // Cache plans for 5 minutes for performance
-            $plans = Cache::remember('active_subscription_plans', 300, function () {
+            $plans = Cache::remember(self::CACHE_KEY_PLANS, self::CACHE_TTL_PLANS, function () {
                 $fetched = SubscriptionPlan::where('is_active', true)
                     ->orderBy('sort_order')
                     ->get()

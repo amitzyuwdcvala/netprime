@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Constants\PaymentStatus;
 use App\Models\PaymentTransaction;
+use App\Services\Admin\DashboardService;
 use App\Services\API\PaymentService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -75,5 +76,8 @@ class ProcessPaymentWebhook implements ShouldQueue, ShouldBeUnique
                 'error_message' => $transaction->error_message,
             ]);
         }
+
+        // Invalidate dashboard cache so stats reflect new payment/subscription state
+        app(DashboardService::class)->clearCache();
     }
 }

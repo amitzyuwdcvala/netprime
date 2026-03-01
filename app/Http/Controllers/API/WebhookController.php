@@ -136,6 +136,27 @@ class WebhookController extends Controller
                 return $response;
             }
 
+            // Update transaction with payment method and card/UPI details from gateway
+            $update = [];
+            if (!empty($paymentInfo['method'])) {
+                $update['payment_method'] = $paymentInfo['method'];
+            }
+            if (isset($paymentInfo['card_last4'])) {
+                $update['card_last4'] = $paymentInfo['card_last4'];
+            }
+            if (!empty($paymentInfo['card_network'])) {
+                $update['card_network'] = $paymentInfo['card_network'];
+            }
+            if (!empty($paymentInfo['upi_id'])) {
+                $update['upi_id'] = $paymentInfo['upi_id'];
+            }
+            if (!empty($paymentInfo['payment_id']) && empty($transaction->gateway_payment_id)) {
+                $update['gateway_payment_id'] = $paymentInfo['payment_id'];
+            }
+            if (!empty($update)) {
+                $transaction->update($update);
+            }
+
             // Queue processing so we return 200 quickly (reduces timeout risk under load)
             ProcessPaymentWebhook::dispatch(
                 $gatewayName,

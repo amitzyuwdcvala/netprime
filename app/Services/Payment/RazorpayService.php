@@ -92,6 +92,11 @@ class RazorpayService implements PaymentGatewayInterface
             $event = $webhookData['event'] ?? null;
             $payload = $webhookData['payload'] ?? [];
             $paymentEntity = $payload['payment']['entity'] ?? [];
+            $method = $paymentEntity['method'] ?? null;
+            $card = $paymentEntity['card'] ?? [];
+            $cardLast4 = $card['last4'] ?? null;
+            $cardNetwork = $card['network'] ?? null;
+            $upiId = $paymentEntity['vpa'] ?? null;
 
             return [
                 'event' => $event,
@@ -100,8 +105,11 @@ class RazorpayService implements PaymentGatewayInterface
                 'status' => $paymentEntity['status'] ?? null,
                 'amount' => isset($paymentEntity['amount']) ? ($paymentEntity['amount'] / 100) : null, // Convert from paise
                 'currency' => $paymentEntity['currency'] ?? null,
-                'method' => $paymentEntity['method'] ?? null,
+                'method' => $method,
                 'gateway' => $paymentEntity['gateway'] ?? null,
+                'card_last4' => $cardLast4,
+                'card_network' => $cardNetwork,
+                'upi_id' => $upiId,
             ];
         } catch (\Exception $e) {
             Log::error('Razorpay handleWebhook error: ' . $e->getMessage(), [
