@@ -26,7 +26,7 @@
                 <div class="nav-header">Manage</div>
                 <a href="{{ route('admin.settings.index') }}" class="active">Settings</a>
                 
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" class="d-none">
                      @csrf
                 </form>
                 <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="mt-5 text-danger">Logout</a>

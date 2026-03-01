@@ -10,12 +10,14 @@ class PaymentGatewayManager
 {
     /**
      * Get active payment gateway
-     * Only one gateway can be active at a time
+     * Only one gateway should be active at a time. Uses sort_order so the result is deterministic.
      */
     public function getActiveGateway(): ?PaymentGateway
     {
         return Cache::remember('active_payment_gateway', 600, function () {
-            return PaymentGateway::where('is_active', true)->first();
+            return PaymentGateway::where('is_active', true)
+                ->orderBy('sort_order')
+                ->first();
         });
     }
 

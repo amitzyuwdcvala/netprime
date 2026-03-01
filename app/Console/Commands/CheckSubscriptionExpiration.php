@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\UserSubscription;
 use App\Models\User;
 use App\Constants\SubscriptionStatus;
+use App\Services\API\VideoAccessService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -23,13 +24,15 @@ class CheckSubscriptionExpiration extends Command
      *
      * @var string
      */
-    protected $description = 'Check and expire subscriptions that have passed their end date';
+    protected $description = 'Check and expire subscriptions that have passed their end date (daily cron). Does NOT reset video_click_count – remaining free videos persist after plan end.';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
+        Log::info('[Cron] Subscription expiration check started');
+
         $this->info('Checking for expired subscriptions...');
 
         $expiredCount = 0;
@@ -47,12 +50,15 @@ class CheckSubscriptionExpiration extends Command
                     $subscription->status = SubscriptionStatus::EXPIRED;
                     $subscription->save();
 
-                    // Update user VIP status
-                    $user = User::find($subscription->android_id);
+                    // Set is_vip = false. Do NOT reset video_click_count – user keeps remaining free videos (e.g. had 4 left → still has 4 after plan end).
+                    $user = User::where('android_id', $subscription->android_id)->first();
                     if ($user && $user->is_vip) {
                         $user->is_vip = false;
                         $user->save();
                         $updatedUsers++;
+
+                        // Invalidate VIP access cache so next video/access call sees is_vip = false
+                        VideoAccessService::invalidateVipAccessCache($user->android_id);
                     }
 
                     $expiredCount++;
@@ -62,7 +68,7 @@ class CheckSubscriptionExpiration extends Command
             $this->info("Successfully expired {$expiredCount} subscriptions.");
             $this->info("Updated VIP status for {$updatedUsers} users.");
 
-            Log::info("Subscription expiration check completed", [
+            Log::info('[Cron] Subscription expiration check completed', [
                 'expired_count' => $expiredCount,
                 'updated_users' => $updatedUsers,
             ]);
@@ -72,7 +78,7 @@ class CheckSubscriptionExpiration extends Command
         } catch (\Exception $e) {
             $this->error('Error checking subscription expiration: ' . $e->getMessage());
             
-            Log::error('Subscription expiration check failed', [
+            Log::error('[Cron] Subscription expiration check failed', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);

@@ -17,34 +17,43 @@ class SubscriptionService
     public function get_plans_service($request)
     {
         try {
+            $androidId = $request->header('X-Android-ID', 'unknown');
+            Log::info('[Plans] Request received', ['android_id' => $androidId]);
+
             // Cache plans for 5 minutes for performance
             $plans = Cache::remember('active_subscription_plans', 300, function () {
-                return SubscriptionPlan::where('is_active', true)
+                $fetched = SubscriptionPlan::where('is_active', true)
                     ->orderBy('sort_order')
                     ->get()
                     ->map(function ($plan) {
                         return [
-                            'id' => $plan->id,
-                            'name' => $plan->name,
-                            'amount' => (float) $plan->amount,
-                            'days' => $plan->days,
-                            'features' => $plan->features ?? [],
+                            'id'         => $plan->id,
+                            'name'       => $plan->name,
+                            'amount'     => (float) $plan->amount,
+                            'days'       => $plan->days,
+                            'features'   => $plan->features ?? [],
                             'is_popular' => $plan->is_popular,
-                            'is_active' => $plan->is_active,
-                            'currency' => 'INR',
+                            'is_active'  => $plan->is_active,
+                            'currency'   => 'INR',
                         ];
                     });
+                Log::info('[Plans] Fetched from DB', ['count' => $fetched->count()]);
+                return $fetched;
             });
+
+            Log::info('[Plans] Returning plans (from cache or DB)', [
+                'count'    => count($plans),
+                'plan_ids' => collect($plans)->pluck('id')->toArray(),
+            ]);
 
             return $this->successResponse([
                 'message' => 'Plans retrieved successfully',
-                'data' => [
+                'data'    => [
                     'plans' => $plans,
                 ],
             ]);
-
         } catch (\Exception $e) {
-            Log::error('SubscriptionService get_plans_service error: ' . $e->getMessage(), [
+            Log::error('[Plans] ERROR: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
             ]);
 
@@ -52,4 +61,3 @@ class SubscriptionService
         }
     }
 }
-

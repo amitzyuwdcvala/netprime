@@ -7,9 +7,12 @@ use App\Http\Controllers\API\VideoAccessController;
 /**
  * API User Routes
  * Protected routes - android_auth required
+ * Video access: throttled 60/min per user to reduce load under heavy use
  */
 
-Route::post('/video/access', [VideoAccessController::class, 'access'])->name('api.video.access');
+Route::post('/video/access', [VideoAccessController::class, 'access'])
+    ->middleware('throttle:video_access')
+    ->name('api.video.access');
 
 Route::prefix('self')->group(function () {
 

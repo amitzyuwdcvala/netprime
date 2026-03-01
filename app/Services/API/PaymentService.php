@@ -32,6 +32,7 @@ class PaymentService
         try {
             DB::beginTransaction();
 
+            // User set by AndroidAuth middleware from android_id (header/body) – no Sanctum
             $user = $request->user();
             $planId = $request->input('plan_id');
             $androidId = $user->android_id;
@@ -47,6 +48,23 @@ class PaymentService
             if ($activeSubscription) {
                 Log::warning('create_order_service: User already has an active subscription', ['android_id' => $androidId]);
                 return $this->badRequestResponse([], 'You already have an active subscription. Only one active plan is allowed at a time.');
+            }
+
+            // Prevent multiple concurrent orders: reject if user has a non-terminal transaction
+            $pendingTransaction = PaymentTransaction::where('android_id', $androidId)
+                ->whereIn('status', [
+                    PaymentStatus::INITIATED,
+                    PaymentStatus::PENDING,
+                    PaymentStatus::PENDING_WEBHOOK,
+                ])
+                ->first();
+
+            if ($pendingTransaction) {
+                Log::warning('create_order_service: User has pending payment', [
+                    'android_id' => $androidId,
+                    'transaction_id' => $pendingTransaction->transaction_id,
+                ]);
+                return $this->badRequestResponse([], 'You have a payment in progress. Please complete or wait for it to expire before creating a new order.');
             }
 
             Log::info('create_order_service: No active subscription found, proceeding');
@@ -124,6 +142,7 @@ class PaymentService
                     'amount'             => (float) $plan->amount,
                     'currency'           => 'INR',
                     'gateway'            => $this->gatewayManager->getActiveGateway()->name,
+                    'gateway_key'        => $gatewayResponse['key'] ?? null, // Razorpay key_id for Android SDK
                     'gateway_response'   => $gatewayResponse['gateway_response'],
                     // PayU specific
                     'payment_url'        => $gatewayResponse['payment_url']    ?? null,
@@ -237,17 +256,25 @@ class PaymentService
 
     /**
      * Process successful payment (called by webhook or verify API)
-     * This is the final step that creates subscription and sets is_vip = true
+     * Uses pessimistic lock to prevent double processing when verify and webhook run concurrently.
      */
     public function processSuccessfulPayment(PaymentTransaction $transaction): bool
     {
         try {
             DB::beginTransaction();
 
-            // Check if already processed (idempotency)
+            // Re-fetch with lock so concurrent verify + webhook don't both pass isProcessed()
+            $locked = PaymentTransaction::where('id', $transaction->id)->lockForUpdate()->first();
+            if (!$locked) {
+                DB::rollBack();
+                return false;
+            }
+            $transaction = $locked;
+
+            // Idempotency: skip if already processed
             if ($transaction->isProcessed()) {
                 DB::rollBack();
-                return true; // Already processed
+                return true;
             }
 
             $plan = $transaction->plan;
@@ -284,9 +311,12 @@ class PaymentService
             $user->is_vip = true;
             $user->save();
 
-            // Update transaction status
+            // Update transaction status and clear any stale error from a previous failed verify
             $transaction->status = PaymentStatus::SUCCESS;
             $transaction->paid_at = now();
+            $transaction->error_message = null;
+            $transaction->error_code = null;
+            $transaction->failed_at = null;
             $transaction->save();
 
             DB::commit();

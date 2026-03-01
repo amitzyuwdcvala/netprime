@@ -1,0 +1,26 @@
+# ============================================================
+# Hostinger: .htaccess for public_html (when document root is public_html)
+# ============================================================
+# Your Laravel app is in public_html/ and the web entry is public_html/public/
+#
+# INSTRUCTIONS:
+# 1. In Hostinger File Manager, go to public_html (the root, where you see app/, bootstrap/, public/, vendor/).
+# 2. Create or edit a file named exactly:  .htaccess
+# 3. Paste the contents below into that .htaccess (replace everything in it).
+# 4. Save. Then open https://netprime.store again.
+# ============================================================
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # If the request maps to a real file inside public/, serve it (e.g. /build/js/..., /favicon.ico)
+    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f
+    RewriteRule ^(.*)$ public/$1 [L]
+
+    # If the request maps to a directory inside public/, serve it (e.g. /build/)
+    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -d
+    RewriteRule ^(.*)$ public/$1 [L]
+
+    # Everything else: send to Laravel front controller (keeps original URI for routing)
+    RewriteRule ^(.*)$ public/index.php [L]
+</IfModule>

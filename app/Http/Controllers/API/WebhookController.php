@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Traits\ApiResponses;
+use App\Jobs\ProcessPaymentWebhook;
 use App\Models\PaymentTransaction;
 use App\Services\Payment\PaymentGatewayManager;
 use App\Services\API\PaymentService;
@@ -60,7 +61,15 @@ class WebhookController extends Controller
      */
     private function handleWebhook(Request $request, string $gatewayName)
     {
+        $requestId = uniqid('wh_', true);
         try {
+            Log::info('[Webhook] Incoming request', [
+                'request_id' => $requestId,
+                'gateway' => $gatewayName,
+                'event' => $request->input('event') ?? $request->input('type') ?? 'unknown',
+                'payload_size' => strlen($request->getContent()),
+            ]);
+
             // Get webhook signature from header
             $signature = $request->header('X-Razorpay-Signature') 
                 ?? $request->header('X-PayU-Signature')
@@ -80,7 +89,10 @@ class WebhookController extends Controller
             $gateway = $this->gatewayManager->getActiveGateway();
 
             if (!$gateway || strtolower($gateway->name) !== strtolower($gatewayName)) {
-                Log::warning("Webhook received for inactive gateway: {$gatewayName}");
+                Log::warning('[Webhook] Inactive gateway, ignoring', [
+                    'request_id' => $requestId,
+                    'gateway' => $gatewayName,
+                ]);
                 return response()->json(['status' => 'ignored'], 200);
             }
 
@@ -89,48 +101,68 @@ class WebhookController extends Controller
 
             // Verify webhook signature (pass raw body so Razorpay can verify against exact bytes signed by gateway)
             if ($signature && !$gatewayService->verifyWebhookSignature($webhookData, $signature, $rawBody)) {
-                Log::warning("Invalid webhook signature for gateway: {$gatewayName}", [
-                    'signature' => $signature,
+                Log::warning('[Webhook] Invalid signature', [
+                    'request_id' => $requestId,
+                    'gateway' => $gatewayName,
                 ]);
                 return response()->json(['status' => 'invalid_signature'], 400);
             }
 
-            // Process webhook data
+            // Process webhook data (extract payment info only; actual processing in job)
             $paymentInfo = $gatewayService->handleWebhook($webhookData);
 
-            // Find transaction by gateway_order_id or gateway_payment_id
+            Log::info('[Webhook] Payment info extracted', [
+                'request_id' => $requestId,
+                'gateway' => $gatewayName,
+                'order_id' => $paymentInfo['order_id'] ?? null,
+                'payment_id' => $paymentInfo['payment_id'] ?? null,
+                'status' => $paymentInfo['status'] ?? null,
+            ]);
+
+            // Find transaction to ensure it exists before queuing
             $transaction = PaymentTransaction::where('gateway_order_id', $paymentInfo['order_id'])
                 ->orWhere('gateway_payment_id', $paymentInfo['payment_id'])
                 ->first();
 
             if (!$transaction) {
-                Log::warning("Transaction not found for webhook", [
+                Log::warning('[Webhook] Transaction not found', [
+                    'request_id' => $requestId,
                     'gateway' => $gatewayName,
                     'order_id' => $paymentInfo['order_id'] ?? null,
                     'payment_id' => $paymentInfo['payment_id'] ?? null,
                 ]);
-                return response()->json(['status' => 'transaction_not_found'], 200);
+                $response = response()->json(['status' => 'transaction_not_found'], 200);
+                Log::info('[Webhook] Response sent', ['request_id' => $requestId, 'http_status' => 200, 'body_status' => 'transaction_not_found']);
+                return $response;
             }
 
-            // Check if payment is successful
-            if ($paymentInfo['status'] === 'captured' || $paymentInfo['status'] === 'success') {
-                // Process successful payment (this sets is_vip = true)
-                $this->paymentService->processSuccessfulPayment($transaction);
-            } elseif ($paymentInfo['status'] === 'failed') {
-                // Update transaction as failed
-                $transaction->status = \App\Constants\PaymentStatus::FAILED;
-                $transaction->failed_at = now();
-                $transaction->error_message = $paymentInfo['error_message'] ?? 'Payment failed';
-                $transaction->save();
-            }
+            // Queue processing so we return 200 quickly (reduces timeout risk under load)
+            ProcessPaymentWebhook::dispatch(
+                $gatewayName,
+                $paymentInfo['order_id'] ?? null,
+                $paymentInfo['payment_id'] ?? null,
+                $paymentInfo['status'] ?? 'unknown',
+                $paymentInfo['error_message'] ?? null,
+            );
 
-            // Always return 200 to acknowledge receipt
-            return response()->json(['status' => 'received'], 200);
+            Log::info('[Webhook] Job dispatched, returning 200', [
+                'request_id' => $requestId,
+                'gateway' => $gatewayName,
+                'order_id' => $paymentInfo['order_id'] ?? null,
+                'payment_id' => $paymentInfo['payment_id'] ?? null,
+                'transaction_id' => $transaction->id,
+            ]);
+
+            $response = response()->json(['status' => 'received'], 200);
+            Log::info('[Webhook] Response sent', ['request_id' => $requestId, 'http_status' => 200, 'body_status' => 'received']);
+            return $response;
 
         } catch (\Exception $e) {
-            Log::error("Webhook handler error for {$gatewayName}: " . $e->getMessage(), [
+            Log::error('[Webhook] Handler exception', [
+                'request_id' => $requestId ?? null,
+                'gateway' => $gatewayName,
+                'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
-                'request_data' => $request->all(),
             ]);
 
             // Still return 200 to prevent gateway from retrying

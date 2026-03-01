@@ -18,7 +18,7 @@ class PaymentGatewaySeeder extends Seeder
             [
                 'name' => 'Razorpay',
                 'code' => PaymentGatewayCode::RAZORPAY,
-                'is_active' => false,
+                'is_active' => true,
                 'credentials' => [
                     'key_id' => 'rzp_test_SIfXSUz5iJPFX1',
                     'key_secret' => 'qWMKAyeU0knPJ5hlYL291t0E',
@@ -32,10 +32,12 @@ class PaymentGatewaySeeder extends Seeder
                 'code' => PaymentGatewayCode::PHONEPE,
                 'is_active' => false,
                 'credentials' => [
-                    'merchant_id' => 'MERCHANTUAT',
-                    'salt_key' => '099eb0cd-02cf-4e2a-8aca-3e6c6aff0399',
-                    'salt_index' => 1,
-                    'env' => 'UAT', // or PROD
+                    'client_id'        => 'M23LZTGSEEHLX_2602250139',       // from PhonePe dashboard
+                    'client_secret'    => 'YmVjYzQ4OWUtNmRlYy00OTYyLWI1YjktYTQ5M2I5ZDI5OWIw',   // from PhonePe dashboard
+                    'client_version'   => 1,
+                    'webhook_username' => 'netprime_webhook', // set in dashboard
+                    'webhook_password' => 'Netprime123', // set in dashboard
+                    'env'              => 'UAT',
                 ],
                 'sort_order' => 2,
             ],
@@ -56,7 +58,7 @@ class PaymentGatewaySeeder extends Seeder
             [
                 'name' => 'Cashfree',
                 'code' => PaymentGatewayCode::CASHFREE,
-                'is_active' => true,
+                'is_active' => false,
                 'credentials' => [
                     'app_id' => 'TEST1018097913d678670c2e3218230897908101',
                     'secret_key' => 'cfsk_ma_test_9976567161d6113d779b3231655d7219_2ff8c460',
@@ -67,7 +69,10 @@ class PaymentGatewaySeeder extends Seeder
         ];
 
         foreach ($gateways as $gateway) {
-            PaymentGateway::create($gateway);
+            PaymentGateway::updateOrCreate(
+                ['code' => $gateway['code']],
+                $gateway
+            );
         }
     }
 }

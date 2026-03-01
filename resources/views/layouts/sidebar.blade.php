@@ -22,8 +22,7 @@
                 </a>
             </li>
 
-            {{-- Add more menu items below as needed --}}
-            {{--
+            
             <li class="menu-header">Management</li>
 
             <li class="{{ is_active_route('users', 2) }}">
@@ -43,7 +42,7 @@
                     <i class="fas fa-money-bill-wave"></i> <span>{{ __('Payments') }}</span>
                 </a>
             </li>
-            --}}
+           
 
         </ul>
     </aside>

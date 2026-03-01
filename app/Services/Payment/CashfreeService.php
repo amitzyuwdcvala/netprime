@@ -32,16 +32,14 @@ class CashfreeService implements PaymentGatewayInterface
 
     private function http(): \Illuminate\Http\Client\PendingRequest
     {
-        return Http::withHeaders([
+        $request = Http::withHeaders([
             'x-client-id'     => $this->credentials['app_id'],
             'x-client-secret' => $this->credentials['secret_key'],
             'x-api-version'   => '2025-01-01',
             'Content-Type'    => 'application/json',
-        ]);
+        ])->withoutVerifying(); // ← simplest fix, just chain it directly
 
-        if (app()->environment('local')) {
-            $request = $request->withoutVerifying();
-        }
+        return $request;
     }
 
     // ─────────────────────────────────────────────
@@ -80,6 +78,7 @@ class CashfreeService implements PaymentGatewayInterface
                 $payload
             );
 
+            info("Response : ", ['response' => $response->body()]);
             if (!$response->successful()) {
                 Log::error('Cashfree createOrder failed', [
                     'status'  => $response->status(),

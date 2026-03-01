@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Services\Payment\PaymentGatewayManager;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
 class PaymentGateway extends Model
 {
     use HasUuids;
-    //
+
     protected $fillable = [
         'name',
         'code',
@@ -27,5 +28,17 @@ class PaymentGateway extends Model
     public function paymentTransactions()
     {
         return $this->hasMany(PaymentTransaction::class);
+    }
+
+    /**
+     * Clear active gateway cache when gateway config or active state changes.
+     */
+    protected static function booted(): void
+    {
+        static::saved(function (PaymentGateway $gateway) {
+            if ($gateway->wasChanged(['is_active', 'credentials'])) {
+                app(PaymentGatewayManager::class)->clearCache();
+            }
+        });
     }
 }
