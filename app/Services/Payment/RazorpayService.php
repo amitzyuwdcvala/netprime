@@ -41,11 +41,17 @@ class RazorpayService implements PaymentGatewayInterface
     public function createOrder(float $amount, string $currency, array $metadata): array
     {
         try {
+            // Attach helpful metadata to Razorpay order. We also include a static
+            // app identifier so the same Razorpay account can distinguish
+            // between different apps (e.g. Netprime vs others).
+            $notes = $metadata;
+            $notes['app_info'] = 'netprime';
+
             $orderData = [
                 'receipt' => $metadata['transaction_id'] ?? uniqid('txn_'),
-                'amount' => (int)($amount * 100), 
-                'currency' => $currency,
-                'notes' => $metadata,
+                'amount'  => (int) ($amount * 100),
+                'currency'=> $currency,
+                'notes'   => $notes,
             ];
 
             $order = $this->api->order->create($orderData);

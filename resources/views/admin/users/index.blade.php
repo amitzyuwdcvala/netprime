@@ -75,6 +75,17 @@
                 updateTable();
                 checkFilters();
             });
+
+            // VIP details toggle in canvas modal (user form)
+            $(document).on('change', '#is_vip', function () {
+                toggleVipDetails();
+            });
+
+            // When modal opens, ensure correct visibility based on initial state
+            $(document).on('shown.bs.modal', '#{{ $viewData['canvasId'] }}', function () {
+                toggleVipDetails();
+            });
+
             checkFilters();
         });
 
@@ -106,6 +117,29 @@
                 $('#reset-filters-container').show();
             } else {
                 $('#reset-filters-container').hide();
+            }
+        }
+
+        function toggleVipDetails() {
+            var $vipCheckbox = $('#is_vip');
+            if (!$vipCheckbox.length) {
+                return;
+            }
+            var isVipChecked = $vipCheckbox.is(':checked');
+
+            // VIP details section is rendered with .vip-details class
+            var $vipDetails = $('.vip-details');
+
+            if (isVipChecked) {
+                $vipDetails.show();
+            } else {
+                $vipDetails.hide();
+                // Clear values when hiding, but keep disabled values (locked for real paid users)
+                $vipDetails.find('select, input').each(function () {
+                    if (!$(this).prop('disabled')) {
+                        $(this).val('');
+                    }
+                });
             }
         }
     </script>

@@ -45,7 +45,9 @@ class DashboardService
             ->where('end_date', '>=', now()->toDateString())
             ->count();
 
+        // Only count real paid transactions in revenue (ignore free/manual subscriptions)
         $totalRevenue = (float) PaymentTransaction::where('status', PaymentStatus::SUCCESS)
+            ->where('amount', '>', 0)
             ->sum('amount');
 
         $totalPlans = SubscriptionPlan::count();

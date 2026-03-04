@@ -3,14 +3,30 @@
 namespace App\Schemas;
 
 use App\Models\User;
+use App\Models\SubscriptionPlan;
 
 class UserFormSchema
 {
     protected $user;
+    protected $plans;
+    protected bool $canEditVip;
 
     public function __construct($user = null)
     {
         $this->user = $user;
+        $this->plans = SubscriptionPlan::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        // Admin can freely edit VIP / plan fields only when:
+        // - user is being created, OR
+        // - user was manually added by an admin, OR
+        // - user has no active subscription.
+        if (!$this->user) {
+            $this->canEditVip = true;
+        } else {
+            $this->canEditVip = $this->user->isManuallyAdded() || !$this->user->hasActiveSubscription();
+        }
     }
 
     public function schema(): array
@@ -27,7 +43,7 @@ class UserFormSchema
 
     public function fields(): array
     {
-        return [
+        $fields = [
             'android_id' => [
                 'responsive' => ['col-sm-12', 'mb-3'],
                 'label' => 'Android ID',
@@ -44,6 +60,8 @@ class UserFormSchema
                 'name' => 'is_vip',
                 'defaultValue' => $this->user ? $this->user->is_vip : false,
                 'checkboxLabel' => 'User is VIP',
+                // When editing a user that has a real running subscription, prevent toggling VIP
+                'disabled' => $this->user ? !$this->canEditVip : false,
             ],
             'video_click_count' => [
                 'responsive' => ['col-sm-12', 'mb-3'],
@@ -54,6 +72,22 @@ class UserFormSchema
                 'placeHolder' => '0',
             ],
         ];
+
+        // VIP details: plan + duration. Shown in UI when is_vip is checked.
+        $activeSubscription = $this->user ? $this->user->activeSubscription()->first() : null;
+
+        $fields['vip_plan_id'] = [
+            'responsive' => ['col-sm-12', 'mb-3', 'vip-details'],
+            'label' => 'VIP Subscription Plan',
+            'inputType' => 'select',
+            'name' => 'vip_plan_id',
+            'defaultValue' => $activeSubscription ? $activeSubscription->plan_id : '',
+            'options' => $this->plans->pluck('name', 'id')->toArray(),
+            'placeHolder' => 'Select a plan',
+            'disabled' => $this->user ? !$this->canEditVip : false,
+        ];
+
+        return $fields;
     }
 
     public function validations(): array

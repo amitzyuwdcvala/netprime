@@ -26,6 +26,7 @@ class User extends Authenticatable
         'android_id',
         'is_vip',
         'video_click_count',
+        'added_by',
     ];
 
     /**
@@ -47,6 +48,7 @@ class User extends Authenticatable
         return [
             'is_vip' => 'boolean',
             'video_click_count' => 'integer',
+            'added_by' => 'integer',
         ];
     }
 
@@ -120,4 +122,13 @@ class User extends Authenticatable
         return $subscription->status === \App\Constants\SubscriptionStatus::EXPIRED
             || $subscription->end_date < now()->toDateString();
     }
+
+    /**
+     * Determine if this user was created manually by an admin.
+     */
+    public function isManuallyAdded(): bool
+    {
+        return !is_null($this->added_by);
+    }
 }
+
