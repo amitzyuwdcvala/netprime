@@ -37,7 +37,7 @@ class PaymentService
             $planId = $request->input('plan_id');
             $androidId = $user->android_id;
 
-            Log::info('create_order_service: Started', ['android_id' => $androidId, 'plan_id' => $planId]);
+            Log::info('[CreateOrder] create_order_service started', ['android_id' => $androidId, 'plan_id' => $planId]);
 
             // Check if user already has active subscription
             $activeSubscription = UserSubscription::where('android_id', $androidId)
@@ -46,7 +46,7 @@ class PaymentService
                 ->first();
 
             if ($activeSubscription) {
-                Log::warning('create_order_service: User already has an active subscription', ['android_id' => $androidId]);
+                Log::warning('[CreateOrder] User already has active subscription', ['android_id' => $androidId]);
                 return $this->badRequestResponse([], 'You already have an active subscription. Only one active plan is allowed at a time.');
             }
 
@@ -60,35 +60,35 @@ class PaymentService
                 ->first();
 
             if ($pendingTransaction) {
-                Log::warning('create_order_service: User has pending payment', [
+                Log::warning('[CreateOrder] User has pending payment', [
                     'android_id' => $androidId,
                     'transaction_id' => $pendingTransaction->transaction_id,
                 ]);
                 return $this->badRequestResponse([], 'You have a payment in progress. Please complete or wait for it to expire before creating a new order.');
             }
 
-            Log::info('create_order_service: No active subscription found, proceeding');
+            Log::info('[CreateOrder] No active subscription, proceeding');
 
             // Get plan
             $plan = SubscriptionPlan::find($planId);
             if (!$plan || !$plan->is_active) {
-                Log::warning('create_order_service: Plan not found or inactive', ['plan_id' => $planId]);
+                Log::warning('[CreateOrder] Plan not found or inactive', ['plan_id' => $planId]);
                 return $this->notFoundResponse([], 'Subscription plan not found or inactive');
             }
-            Log::info('create_order_service: Plan found', ['plan_id' => $planId, 'amount' => $plan->amount]);
+            Log::info('[CreateOrder] Plan found', ['plan_id' => $planId, 'amount' => $plan->amount]);
 
             // Get active payment gateway
             try {
                 $gatewayService = $this->gatewayManager->getActiveService();
-                Log::info('create_order_service: Active gateway resolved', ['gateway' => $this->gatewayManager->getActiveGateway()->name]);
+                Log::info('[CreateOrder] Active gateway resolved', ['gateway' => $this->gatewayManager->getActiveGateway()->name]);
             } catch (\Exception $e) {
-                Log::error('create_order_service: Error resolving active gateway', ['error' => $e->getMessage()]);
+                Log::error('[CreateOrder] No active gateway', ['error' => $e->getMessage()]);
                 return $this->errorResponse([], 'No active payment gateway found. Please contact support.', 503);
             }
 
             // Generate unique transaction ID
             $transactionId = 'TXN_' . strtoupper(Str::random(16)) . '_' . time();
-            Log::info('create_order_service: Generated transaction ID', ['transaction_id' => $transactionId]);
+            Log::info('[CreateOrder] Generated transaction_id', ['transaction_id' => $transactionId]);
 
             // Create payment transaction
             $transaction = PaymentTransaction::create([
@@ -104,7 +104,7 @@ class PaymentService
                     'ip_address' => $request->ip(),
                 ],
             ]);
-            Log::info('create_order_service: Transaction created in DB', ['transaction_id_primary' => $transaction->id, 'transaction_id' => $transactionId]);
+            Log::info('[CreateOrder] Transaction created in DB', ['transaction_id_primary' => $transaction->id, 'transaction_id' => $transactionId]);
 
             // Create order with gateway
             $metadata = [
@@ -114,7 +114,7 @@ class PaymentService
                 'plan_name' => $plan->name,
             ];
 
-            Log::info('create_order_service: Calling gateway service to create order', ['metadata' => $metadata]);
+            Log::info('[CreateOrder] Calling gateway createOrder', ['metadata' => $metadata]);
 
             $gatewayResponse = $gatewayService->createOrder(
                 (float) $plan->amount,
@@ -122,16 +122,16 @@ class PaymentService
                 $metadata
             );
 
-            Log::info('create_order_service: Gateway order created successfully', ['gateway_response' => $gatewayResponse]);
+            Log::info('[CreateOrder] Gateway order created', ['gateway_response' => $gatewayResponse]);
 
             // Update transaction with gateway order ID
             $transaction->gateway_order_id = $gatewayResponse['order_id'];
             $transaction->gateway_response = $gatewayResponse['gateway_response'];
             $transaction->save();
-            Log::info('create_order_service: Transaction updated with gateway details');
+            Log::info('[CreateOrder] Transaction updated with gateway details');
 
             DB::commit();
-            Log::info('create_order_service: Order created successfully, transaction committed');
+            Log::info('[CreateOrder] Order created successfully');
 
             return $this->successResponse([
                 'message' => 'Order created successfully',
@@ -153,9 +153,11 @@ class PaymentService
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('PaymentService create_order_service error: ' . $e->getMessage(), [
+            Log::error('[CreateOrder] create_order_service exception', [
+                'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
-                'request_data' => $request->all(),
+                'android_id' => $request->user()?->android_id,
+                'plan_id' => $request->input('plan_id'),
             ]);
 
             return $this->errorResponse([], 'Failed to create order. Please try again.', 500);

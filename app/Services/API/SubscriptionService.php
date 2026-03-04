@@ -11,10 +11,8 @@ class SubscriptionService
 {
     use ApiResponses;
 
-    /** Cache key for active plans list (invalidate when plans are updated in admin). */
     public const CACHE_KEY_PLANS = 'active_subscription_plans';
 
-    /** Cache TTL for plans (5 minutes). */
     public const CACHE_TTL_PLANS = 300;
 
     /**

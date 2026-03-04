@@ -96,9 +96,7 @@ class PlanService
         }
     }
 
-    /**
-     * Invalidate caches that depend on subscription plans (API plans list, dashboard stats).
-     */
+
     protected function invalidatePlanRelatedCaches(): void
     {
         Cache::forget(SubscriptionService::CACHE_KEY_PLANS);

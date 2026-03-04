@@ -9,10 +9,14 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * Add 'pending_webhook' to payment_transactions.status enum.
+     * Add 'pending_webhook' to payment_transactions.status enum (MySQL only).
+     * SQLite does not support MODIFY COLUMN / ENUM; Laravel stores enum as string so no change needed.
      */
     public function up(): void
     {
+        if (DB::getDriverName() !== 'mysql') {
+            return;
+        }
         DB::statement("ALTER TABLE payment_transactions MODIFY COLUMN status ENUM('initiated', 'pending', 'pending_webhook', 'success', 'failed', 'refunded') DEFAULT 'initiated' COMMENT 'Payment status'");
     }
 
@@ -21,7 +25,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Optionally migrate existing pending_webhook back to pending before reverting enum
+        if (DB::getDriverName() !== 'mysql') {
+            return;
+        }
         DB::table('payment_transactions')->where('status', 'pending_webhook')->update(['status' => 'pending']);
         DB::statement("ALTER TABLE payment_transactions MODIFY COLUMN status ENUM('initiated', 'pending', 'success', 'failed', 'refunded') DEFAULT 'initiated' COMMENT 'Payment status'");
     }
