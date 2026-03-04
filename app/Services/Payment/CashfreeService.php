@@ -175,14 +175,25 @@ class CashfreeService implements PaymentGatewayInterface
                 default                        => 'pending',
             };
 
+            $methodRaw = $payment['payment_method'] ?? null;
+            $method    = $this->normalizePaymentMethod($methodRaw);
+            $card      = is_array($methodRaw) ? ($methodRaw['card'] ?? $methodRaw['card_details'] ?? []) : [];
+            $cardLast4 = null;
+            if (!empty($card['card_number']) && preg_match('/\d{4}$/', (string) $card['card_number'], $m)) {
+                $cardLast4 = $m[0];
+            }
+            $cardNetwork = $card['card_network'] ?? null;
+
             return [
-                'event'      => $type,
-                'payment_id' => (string) ($payment['cf_payment_id'] ?? ''),
-                'order_id'   => $order['order_id'] ?? '',  // our CF_TXN_xxx
-                'status'     => $status,
-                'amount'     => $payment['payment_amount'] ?? null,
-                'method'     => $payment['payment_method'] ?? null,
-                'raw'        => $webhookData,
+                'event'         => $type,
+                'payment_id'    => (string) ($payment['cf_payment_id'] ?? ''),
+                'order_id'      => $order['order_id'] ?? '',
+                'status'        => $status,
+                'amount'        => $payment['payment_amount'] ?? null,
+                'method'        => $method,
+                'card_last4'    => $cardLast4,
+                'card_network'  => $cardNetwork ? (string) $cardNetwork : null,
+                'raw'           => $webhookData,
             ];
         } catch (\Exception $e) {
             Log::error('Cashfree handleWebhook exception: ' . $e->getMessage(), [
@@ -190,6 +201,30 @@ class CashfreeService implements PaymentGatewayInterface
             ]);
             throw $e;
         }
+    }
+
+    /**
+     * Normalize payment_method to a short string (DB column is 50 chars).
+     * Cashfree can send an object e.g. {"card":{...}}; we store only "card".
+     */
+    private function normalizePaymentMethod(mixed $method): ?string
+    {
+        if ($method === null || $method === '') {
+            return null;
+        }
+        if (is_string($method)) {
+            return strlen($method) > 50 ? substr($method, 0, 50) : $method;
+        }
+        if (is_array($method)) {
+            $keys = ['card', 'upi', 'netbanking', 'wallet', 'emi', 'paylater'];
+            foreach ($keys as $key) {
+                if (array_key_exists($key, $method)) {
+                    return $key;
+                }
+            }
+            return array_key_first($method) !== null ? (string) array_key_first($method) : null;
+        }
+        return null;
     }
 
     // ─────────────────────────────────────────────

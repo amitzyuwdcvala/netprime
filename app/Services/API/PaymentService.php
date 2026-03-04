@@ -9,6 +9,8 @@ use App\Models\SubscriptionPlan;
 use App\Services\Payment\PaymentGatewayManager;
 use App\Constants\PaymentStatus;
 use App\Constants\SubscriptionStatus;
+use App\Jobs\ProcessPaymentWebhook;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -25,88 +27,45 @@ class PaymentService
     }
 
     /**
-     * Create payment order
+     * Create payment order.
+     *
+     * No DB transaction record is created here. We only create a gateway order
+     * and cache the metadata. The actual PaymentTransaction row is created later
+     * when the webhook confirms payment (like weblo's PayPal pattern).
      */
     public function create_order_service($request)
     {
         try {
-            DB::beginTransaction();
-
-            // User set by AndroidAuth middleware from android_id (header/body) – no Sanctum
             $user = $request->user();
             $planId = $request->input('plan_id');
             $androidId = $user->android_id;
 
-            Log::info('[CreateOrder] create_order_service started', ['android_id' => $androidId, 'plan_id' => $planId]);
+            Log::info('[CreateOrder] started', ['android_id' => $androidId, 'plan_id' => $planId]);
 
-            // Check if user already has active subscription
             $activeSubscription = UserSubscription::where('android_id', $androidId)
                 ->where('status', SubscriptionStatus::ACTIVE)
                 ->where('end_date', '>=', now()->toDateString())
                 ->first();
 
             if ($activeSubscription) {
-                Log::warning('[CreateOrder] User already has active subscription', ['android_id' => $androidId]);
-                return $this->badRequestResponse([], 'You already have an active subscription. Only one active plan is allowed at a time.');
+                return $this->badRequestResponse([], 'You already have an active subscription.');
             }
 
-            // Prevent multiple concurrent orders: reject if user has a non-terminal transaction
-            $pendingTransaction = PaymentTransaction::where('android_id', $androidId)
-                ->whereIn('status', [
-                    PaymentStatus::INITIATED,
-                    PaymentStatus::PENDING,
-                    PaymentStatus::PENDING_WEBHOOK,
-                ])
-                ->first();
-
-            if ($pendingTransaction) {
-                Log::warning('[CreateOrder] User has pending payment', [
-                    'android_id' => $androidId,
-                    'transaction_id' => $pendingTransaction->transaction_id,
-                ]);
-                return $this->badRequestResponse([], 'You have a payment in progress. Please complete or wait for it to expire before creating a new order.');
-            }
-
-            Log::info('[CreateOrder] No active subscription, proceeding');
-
-            // Get plan
             $plan = SubscriptionPlan::find($planId);
             if (!$plan || !$plan->is_active) {
-                Log::warning('[CreateOrder] Plan not found or inactive', ['plan_id' => $planId]);
                 return $this->notFoundResponse([], 'Subscription plan not found or inactive');
             }
-            Log::info('[CreateOrder] Plan found', ['plan_id' => $planId, 'amount' => $plan->amount]);
 
-            // Get active payment gateway
             try {
                 $gatewayService = $this->gatewayManager->getActiveService();
-                Log::info('[CreateOrder] Active gateway resolved', ['gateway' => $this->gatewayManager->getActiveGateway()->name]);
+                $gateway = $this->gatewayManager->getActiveGateway();
             } catch (\Exception $e) {
                 Log::error('[CreateOrder] No active gateway', ['error' => $e->getMessage()]);
                 return $this->errorResponse([], 'No active payment gateway found. Please contact support.', 503);
             }
 
-            // Generate unique transaction ID
             $transactionId = 'TXN_' . strtoupper(Str::random(16)) . '_' . time();
-            Log::info('[CreateOrder] Generated transaction_id', ['transaction_id' => $transactionId]);
 
-            // Create payment transaction
-            $transaction = PaymentTransaction::create([
-                'android_id' => $androidId,
-                'plan_id' => $planId,
-                'payment_gateway_id' => $this->gatewayManager->getActiveGateway()->id,
-                'transaction_id' => $transactionId,
-                'amount' => $plan->amount,
-                'currency' => 'INR',
-                'status' => PaymentStatus::INITIATED,
-                'metadata' => [
-                    'user_agent' => $request->userAgent(),
-                    'ip_address' => $request->ip(),
-                ],
-            ]);
-            Log::info('[CreateOrder] Transaction created in DB', ['transaction_id_primary' => $transaction->id, 'transaction_id' => $transactionId]);
-
-            // Create order with gateway
             $metadata = [
                 'transaction_id' => $transactionId,
                 'android_id' => $androidId,
@@ -114,46 +73,50 @@ class PaymentService
                 'plan_name' => $plan->name,
             ];
 
-            Log::info('[CreateOrder] Calling gateway createOrder', ['metadata' => $metadata]);
-
             $gatewayResponse = $gatewayService->createOrder(
                 (float) $plan->amount,
                 'INR',
                 $metadata
             );
 
-            Log::info('[CreateOrder] Gateway order created', ['gateway_response' => $gatewayResponse]);
+            Log::info('[CreateOrder] Gateway order created', [
+                'order_id' => $gatewayResponse['order_id'],
+                'transaction_id' => $transactionId,
+            ]);
 
-            // Update transaction with gateway order ID
-            $transaction->gateway_order_id = $gatewayResponse['order_id'];
-            $transaction->gateway_response = $gatewayResponse['gateway_response'];
-            $transaction->save();
-            Log::info('[CreateOrder] Transaction updated with gateway details');
-
-            DB::commit();
-            Log::info('[CreateOrder] Order created successfully');
+            // Store order metadata in cache (24 hours) so webhook/verify can create the DB row later
+            $cacheKey = 'payment_order:' . $gatewayResponse['order_id'];
+            Cache::put($cacheKey, [
+                'transaction_id' => $transactionId,
+                'android_id' => $androidId,
+                'plan_id' => $planId,
+                'payment_gateway_id' => $gateway->id,
+                'amount' => $plan->amount,
+                'currency' => 'INR',
+                'gateway_order_id' => $gatewayResponse['order_id'],
+                'gateway_response' => $gatewayResponse['gateway_response'] ?? [],
+                'user_agent' => $request->userAgent(),
+                'ip_address' => $request->ip(),
+            ], 86400);
 
             return $this->successResponse([
                 'message' => 'Order created successfully',
                 'data' => [
-                    'transaction_id'     => $transaction->id,
+                    'transaction_id'     => $transactionId,
                     'gateway_order_id'   => $gatewayResponse['order_id'],
                     'payment_session_id' => $gatewayResponse['payment_session_id'] ?? null,
                     'amount'             => (float) $plan->amount,
                     'currency'           => 'INR',
-                    'gateway'            => $this->gatewayManager->getActiveGateway()->name,
-                    'gateway_key'        => $gatewayResponse['key'] ?? null, // Razorpay key_id for Android SDK
+                    'gateway'            => $gateway->name,
+                    'gateway_key'        => $gatewayResponse['key'] ?? null,
                     'gateway_response'   => $gatewayResponse['gateway_response'],
-                    // PayU specific
                     'payment_url'        => $gatewayResponse['payment_url']    ?? null,
                     'payment_params'     => $gatewayResponse['payment_params'] ?? null,
-                    // PhonePe specific
                     'checkout_url'       => $gatewayResponse['checkout_url']   ?? null,
                 ],
             ]);
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('[CreateOrder] create_order_service exception', [
+            Log::error('[CreateOrder] exception', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'android_id' => $request->user()?->android_id,
@@ -165,91 +128,94 @@ class PaymentService
     }
 
     /**
-     * Verify payment (client-initiated)
-     * Sets status to pending_webhook, webhook will set to success
+     * Verify payment (client-initiated after gateway SDK callback).
+     *
+     * Creates the transaction DB row if it doesn't exist yet, then marks it
+     * as pending_webhook. The webhook job finalises to success.
      */
     public function verify_payment_service($request)
     {
         try {
-            DB::beginTransaction();
-
             $androidId = $request->input('android_id');
-            $transactionIdInput = $request->input('transaction_id');
             $gatewayPaymentId = $request->input('gateway_payment_id');
             $gatewaySignature = $request->input('gateway_signature');
             $gatewayOrderId = $request->input('gateway_order_id');
 
-            // Get transaction: create-order returns $transaction->id (UUID), so accept either UUID (id) or TXN_xxx (transaction_id column)
-            $transaction = null;
-            if (str_contains($transactionIdInput, '-') && strlen($transactionIdInput) === 36) {
-                $transaction = PaymentTransaction::where('id', $transactionIdInput)
-                    ->where('android_id', $androidId)
-                    ->first();
-            }
-            if (!$transaction) {
-                $transaction = PaymentTransaction::where('transaction_id', $transactionIdInput)
-                    ->where('android_id', $androidId)
-                    ->first();
-            }
+            // Try to find an existing transaction (webhook may have arrived first)
+            $transaction = PaymentTransaction::where('gateway_order_id', $gatewayOrderId)
+                ->where('android_id', $androidId)
+                ->first();
 
-            if (!$transaction) {
-                return $this->notFoundResponse([], 'Transaction not found');
-            }
-
-            // Check if already processed (idempotency)
-            if ($transaction->isProcessed()) {
+            if ($transaction && $transaction->isProcessed()) {
                 return $this->successResponse([
                     'message' => 'Payment already verified',
                     'data' => [
-                        'subscription' => $this->getSubscriptionData($transaction->android_id),
+                        'subscription' => $this->getSubscriptionData($androidId),
                     ],
                 ]);
             }
 
-            // Get gateway service
-            $gatewayService = $this->gatewayManager->resolveService($transaction->gateway);
+            // Resolve the gateway service from the active gateway
+            $gateway = $this->gatewayManager->getActiveGateway();
+            $gatewayService = $this->gatewayManager->resolveService($gateway);
 
-            // Verify payment
-            $paymentData = [
+            $isVerified = $gatewayService->verifyPayment([
                 'gateway_order_id' => $gatewayOrderId,
                 'gateway_payment_id' => $gatewayPaymentId,
                 'gateway_signature' => $gatewaySignature,
-            ];
-
-            $isVerified = $gatewayService->verifyPayment($paymentData);
+            ]);
 
             if (!$isVerified) {
-                $transaction->status = PaymentStatus::FAILED;
-                $transaction->error_message = 'Payment verification failed';
-                $transaction->failed_at = now();
-                $transaction->save();
-
-                DB::commit();
-
-                return $this->badRequestResponse([], 'Payment verification failed. Please try again or contact support.');
+                if ($transaction) {
+                    $transaction->update([
+                        'status' => PaymentStatus::FAILED,
+                        'error_message' => 'Payment verification failed',
+                        'failed_at' => now(),
+                    ]);
+                }
+                return $this->badRequestResponse([], 'Payment verification failed.');
             }
 
-            // Update transaction (set to pending_webhook, webhook will finalize)
-            $transaction->gateway_payment_id = $gatewayPaymentId;
-            $transaction->gateway_signature = $gatewaySignature;
-            $transaction->status = PaymentStatus::PENDING_WEBHOOK;
-            $transaction->save();
+            // Create the transaction row now if it doesn't exist (webhook hasn't arrived yet)
+            if (!$transaction) {
+                $transaction = $this->createTransactionFromCache($gatewayOrderId);
+            }
 
-            DB::commit();
+            if (!$transaction) {
+                return $this->notFoundResponse([], 'Order data not found. Please wait a moment and try again.');
+            }
+
+            $transaction->update([
+                'gateway_payment_id' => $gatewayPaymentId,
+                'gateway_signature' => $gatewaySignature,
+                'status' => PaymentStatus::PENDING_WEBHOOK,
+            ]);
+
+            $gatewayName = strtolower($gateway->name ?? '');
+            ProcessPaymentWebhook::dispatch(
+                $gatewayName,
+                $gatewayOrderId,
+                $gatewayPaymentId ?: null,
+                'success',
+                null
+            );
+            Log::info('[Verify] Job dispatched (verify confirmed payment)', [
+                'order_id' => $gatewayOrderId,
+                'transaction_id' => $transaction->id,
+                'gateway' => $gatewayName,
+            ]);
 
             return $this->successResponse([
-                'message' => 'Payment verified successfully. Subscription will be activated shortly.',
+                'message' => 'Payment verified successfully. Your subscription is being activated.',
                 'data' => [
                     'transaction_id' => $transaction->id,
                     'status' => 'pending_webhook',
-                    'note' => 'Your subscription will be activated once webhook is received from payment gateway.',
                 ],
             ]);
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('PaymentService verify_payment_service error: ' . $e->getMessage(), [
+            Log::error('[Verify] exception', [
+                'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
-                'request_data' => $request->all(),
             ]);
 
             return $this->errorResponse([], 'Failed to verify payment. Please try again.', 500);
@@ -257,15 +223,57 @@ class PaymentService
     }
 
     /**
-     * Process successful payment (called by webhook or verify API)
-     * Uses pessimistic lock to prevent double processing when verify and webhook run concurrently.
+     * Create PaymentTransaction row from cached order data.
+     * Used by verify and webhook when the DB row doesn't exist yet.
+     */
+    public function createTransactionFromCache(string $gatewayOrderId): ?PaymentTransaction
+    {
+        $cacheKey = 'payment_order:' . $gatewayOrderId;
+        $cached = Cache::get($cacheKey);
+
+        if (!$cached) {
+            Log::warning('[CreateFromCache] Cache miss', ['order_id' => $gatewayOrderId]);
+            return null;
+        }
+
+        $transaction = PaymentTransaction::firstOrCreate(
+            ['gateway_order_id' => $cached['gateway_order_id']],
+            [
+                'android_id' => $cached['android_id'],
+                'plan_id' => $cached['plan_id'],
+                'payment_gateway_id' => $cached['payment_gateway_id'],
+                'transaction_id' => $cached['transaction_id'],
+                'amount' => $cached['amount'],
+                'currency' => $cached['currency'],
+                'gateway_response' => $cached['gateway_response'] ?? [],
+                'status' => PaymentStatus::PENDING_WEBHOOK,
+                'metadata' => [
+                    'user_agent' => $cached['user_agent'] ?? null,
+                    'ip_address' => $cached['ip_address'] ?? null,
+                ],
+            ]
+        );
+
+        Cache::forget($cacheKey);
+
+        Log::info('[CreateFromCache] Transaction created or found', [
+            'transaction_id' => $transaction->id,
+            'order_id' => $gatewayOrderId,
+            'was_recently_created' => $transaction->wasRecentlyCreated,
+        ]);
+
+        return $transaction;
+    }
+
+    /**
+     * Process successful payment (called by webhook job).
+     * Uses pessimistic lock to prevent double processing.
      */
     public function processSuccessfulPayment(PaymentTransaction $transaction): bool
     {
         try {
             DB::beginTransaction();
 
-            // Re-fetch with lock so concurrent verify + webhook don't both pass isProcessed()
             $locked = PaymentTransaction::where('id', $transaction->id)->lockForUpdate()->first();
             if (!$locked) {
                 DB::rollBack();
@@ -273,7 +281,6 @@ class PaymentService
             }
             $transaction = $locked;
 
-            // Idempotency: skip if already processed
             if ($transaction->isProcessed()) {
                 DB::rollBack();
                 return true;
@@ -282,16 +289,13 @@ class PaymentService
             $plan = $transaction->plan;
             $user = $transaction->user;
 
-            // Calculate dates
             $startDate = now()->toDateString();
             $endDate = now()->addDays($plan->days)->toDateString();
 
-            // Deactivate any existing subscriptions
             UserSubscription::where('android_id', $user->android_id)
                 ->where('status', SubscriptionStatus::ACTIVE)
                 ->update(['status' => SubscriptionStatus::EXPIRED]);
 
-            // Create or update subscription
             UserSubscription::updateOrCreate(
                 [
                     'android_id' => $user->android_id,
@@ -309,11 +313,9 @@ class PaymentService
                 ]
             );
 
-            // Update user VIP status
             $user->is_vip = true;
             $user->save();
 
-            // Update transaction status and clear any stale error from a previous failed verify
             $transaction->status = PaymentStatus::SUCCESS;
             $transaction->paid_at = now();
             $transaction->error_message = null;
@@ -323,7 +325,7 @@ class PaymentService
 
             DB::commit();
 
-            Log::info('Payment processed successfully', [
+            Log::info('[ProcessPayment] Success', [
                 'transaction_id' => $transaction->id,
                 'android_id' => $user->android_id,
             ]);
@@ -331,8 +333,9 @@ class PaymentService
             return true;
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('PaymentService processSuccessfulPayment error: ' . $e->getMessage(), [
+            Log::error('[ProcessPayment] Error', [
                 'transaction_id' => $transaction->id,
+                'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
@@ -340,9 +343,6 @@ class PaymentService
         }
     }
 
-    /**
-     * Get subscription data for response
-     */
     private function getSubscriptionData(string $androidId): ?array
     {
         $subscription = UserSubscription::where('android_id', $androidId)

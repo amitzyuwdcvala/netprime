@@ -40,7 +40,7 @@ class PhonePeService implements PaymentGatewayInterface
             $merchantOrderId = 'PP_' . $metadata['transaction_id'];
             $amountInPaise   = (int) round($amount * 100);
 
-            // Build SDK order request (for Android SDK flow)
+            // redirectUrl: where the user's browser goes after payment. For ngrok testing set APP_URL to your ngrok URL.
             $request = (new StandardCheckoutPayRequestBuilder())
                 ->merchantOrderId($merchantOrderId)
                 ->amount($amountInPaise)
@@ -102,26 +102,30 @@ class PhonePeService implements PaymentGatewayInterface
     public function handleWebhook(array $webhookData): array
     {
         try {
-            $event   = $webhookData['type'] ?? $webhookData['event'] ?? '';
+            $event   = $webhookData['event'] ?? $webhookData['type'] ?? '';
             $payload = $webhookData['payload'] ?? $webhookData['data'] ?? [];
 
-            // merchantOrderId is PP_TXN_xxx
             $merchantOrderId = $payload['merchantOrderId']
                 ?? $payload['order']['merchantOrderId']
                 ?? '';
 
-            $transactionId = $payload['transactionId']
-                ?? $payload['paymentDetails']['transactionId']
+            $paymentDetails = $payload['paymentDetails'] ?? [];
+            $firstPayment   = is_array($paymentDetails) && isset($paymentDetails[0])
+                ? $paymentDetails[0]
+                : $paymentDetails;
+            $transactionId = $firstPayment['transactionId']
+                ?? $payload['transactionId']
                 ?? '';
 
             $amount = isset($payload['amount'])
-                ? $payload['amount'] / 100
+                ? (int) $payload['amount'] / 100
                 : null;
 
+            $state  = strtoupper($payload['state'] ?? '');
             $status = match (strtolower($event)) {
-                'pg.order.completed'    => 'success',
-                'checkout.order.failed' => 'failed',
-                default                 => 'pending',
+                'checkout.order.completed' => ($state === 'COMPLETED' ? 'success' : 'pending'),
+                'checkout.order.failed'    => 'failed',
+                default                    => ($state === 'COMPLETED' ? 'success' : ($state === 'FAILED' ? 'failed' : 'pending')),
             };
 
             Log::info('PhonePe webhook received', [

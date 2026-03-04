@@ -52,5 +52,12 @@ class PaymentController extends Controller
     {
         return $this->paymentService->verify_payment_service($request);
     }
+
+
+    public function phonepeCallback()
+    {
+        return response()->view('api.phonepe-callback', [], 200)
+            ->header('Content-Type', 'text/html');
+    }
 }
 

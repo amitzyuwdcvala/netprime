@@ -168,6 +168,20 @@ class UserService
         try {
             $androidId = $request->input('id');
             $user = User::findOrFail($androidId);
+
+            if ($user->is_vip) {
+                return $this->errorResponse([], 'Cannot delete a VIP user. Remove VIP status first.', 422);
+            }
+
+            $hasActiveSubscription = UserSubscription::where('android_id', $user->android_id)
+                ->where('status', SubscriptionStatus::ACTIVE)
+                ->where('end_date', '>=', now()->toDateString())
+                ->exists();
+
+            if ($hasActiveSubscription) {
+                return $this->errorResponse([], 'Cannot delete a user with an active subscription.', 422);
+            }
+
             $user->delete();
 
             return $this->successResponse(['message' => 'User deleted successfully']);

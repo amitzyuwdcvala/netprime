@@ -24,54 +24,37 @@ class WebhookController extends Controller
         $this->paymentService = $paymentService;
     }
 
-    /**
-     * Handle Razorpay webhook
-     */
     public function razorpay(Request $request)
     {
         return $this->handleWebhook($request, 'razorpay');
     }
 
-    /**
-     * Handle PayU webhook
-     */
     public function payu(Request $request)
     {
         return $this->handleWebhook($request, 'payu');
     }
 
-    /**
-     * Handle PhonePe webhook
-     */
     public function phonepe(Request $request)
     {
         return $this->handleWebhook($request, 'phonepe');
     }
 
-    /**
-     * Handle Cashfree webhook
-     */
     public function cashfree(Request $request)
     {
         return $this->handleWebhook($request, 'cashfree');
     }
 
-    /**
-     * Generic webhook handler
-     */
     private function handleWebhook(Request $request, string $gatewayName)
     {
         $requestId = uniqid('wh_', true);
         try {
-            Log::info('[Webhook] Incoming request', [
+            Log::info('[Webhook] Incoming', [
                 'request_id' => $requestId,
                 'gateway' => $gatewayName,
                 'event' => $request->input('event') ?? $request->input('type') ?? 'unknown',
-                'payload_size' => strlen($request->getContent()),
             ]);
 
-            // Get webhook signature from header
-            $signature = $request->header('X-Razorpay-Signature') 
+            $signature = $request->header('X-Razorpay-Signature')
                 ?? $request->header('X-PayU-Signature')
                 ?? $request->header('X-PhonePe-Signature')
                 ?? $request->header('X-Cashfree-Signature')
@@ -80,66 +63,70 @@ class WebhookController extends Controller
             $webhookData = $request->all();
             $rawBody = $request->getContent();
 
-            // PayU sends hash in body, not header
             if (strtolower($gatewayName) === 'payu' && $signature === null && !empty($webhookData['hash'])) {
                 $signature = $webhookData['hash'];
             }
+            if (strtolower($gatewayName) === 'phonepe' && $signature === null) {
+                $signature = $request->header('Authorization');
+            }
 
-            // Get active gateway
             $gateway = $this->gatewayManager->getActiveGateway();
 
             if (!$gateway || strtolower($gateway->name) !== strtolower($gatewayName)) {
-                Log::warning('[Webhook] Inactive gateway, ignoring', [
-                    'request_id' => $requestId,
-                    'gateway' => $gatewayName,
-                ]);
+                Log::warning('[Webhook] Inactive gateway, ignoring', ['request_id' => $requestId, 'gateway' => $gatewayName]);
                 return response()->json(['status' => 'ignored'], 200);
             }
 
-            // Get gateway service
             $gatewayService = $this->gatewayManager->resolveService($gateway);
 
-            // Verify webhook signature (pass raw body so Razorpay can verify against exact bytes signed by gateway)
             if ($signature && !$gatewayService->verifyWebhookSignature($webhookData, $signature, $rawBody)) {
-                Log::warning('[Webhook] Invalid signature', [
-                    'request_id' => $requestId,
-                    'gateway' => $gatewayName,
-                ]);
+                Log::warning('[Webhook] Invalid signature', ['request_id' => $requestId]);
                 return response()->json(['status' => 'invalid_signature'], 400);
             }
 
-            // Process webhook data (extract payment info only; actual processing in job)
             $paymentInfo = $gatewayService->handleWebhook($webhookData);
 
             Log::info('[Webhook] Payment info extracted', [
                 'request_id' => $requestId,
-                'gateway' => $gatewayName,
                 'order_id' => $paymentInfo['order_id'] ?? null,
                 'payment_id' => $paymentInfo['payment_id'] ?? null,
                 'status' => $paymentInfo['status'] ?? null,
             ]);
 
-            // Find transaction to ensure it exists before queuing
-            $transaction = PaymentTransaction::where('gateway_order_id', $paymentInfo['order_id'])
-                ->orWhere('gateway_payment_id', $paymentInfo['payment_id'])
-                ->first();
+            $orderId = $paymentInfo['order_id'] ?? null;
+            $paymentId = $paymentInfo['payment_id'] ?? null;
 
-            if (!$transaction) {
-                Log::warning('[Webhook] Transaction not found', [
-                    'request_id' => $requestId,
-                    'gateway' => $gatewayName,
-                    'order_id' => $paymentInfo['order_id'] ?? null,
-                    'payment_id' => $paymentInfo['payment_id'] ?? null,
-                ]);
-                $response = response()->json(['status' => 'transaction_not_found'], 200);
-                Log::info('[Webhook] Response sent', ['request_id' => $requestId, 'http_status' => 200, 'body_status' => 'transaction_not_found']);
-                return $response;
+            // Look up existing transaction (verify may have created it already)
+            $transaction = null;
+            if ($orderId) {
+                $transaction = PaymentTransaction::where('gateway_order_id', $orderId)->first();
+            }
+            if (!$transaction && $paymentId) {
+                $transaction = PaymentTransaction::where('gateway_payment_id', $paymentId)->first();
             }
 
-            // Update transaction with payment method and card/UPI details from gateway
+            // If no DB row yet, create it from cached order metadata (weblo pattern)
+            if (!$transaction && $orderId) {
+                $transaction = $this->paymentService->createTransactionFromCache($orderId);
+            }
+
+            if (!$transaction) {
+                Log::warning('[Webhook] Transaction not found and cache miss', [
+                    'request_id' => $requestId,
+                    'order_id' => $orderId,
+                    'payment_id' => $paymentId,
+                ]);
+                return response()->json(['status' => 'transaction_not_found'], 200);
+            }
+
             $update = [];
-            if (!empty($paymentInfo['method'])) {
-                $update['payment_method'] = $paymentInfo['method'];
+            $method = $paymentInfo['method'] ?? null;
+            if ($method !== null && $method !== '') {
+                $methodStr = is_string($method) ? $method : (string) $method;
+                if (strlen($methodStr) > 50) {
+                    $methodStr = substr($methodStr, 0, 50);
+                }
+                $update['payment_method'] = $methodStr;
             }
             if (isset($paymentInfo['card_last4'])) {
                 $update['card_last4'] = $paymentInfo['card_last4'];
@@ -150,43 +137,36 @@ class WebhookController extends Controller
             if (!empty($paymentInfo['upi_id'])) {
                 $update['upi_id'] = $paymentInfo['upi_id'];
             }
-            if (!empty($paymentInfo['payment_id']) && empty($transaction->gateway_payment_id)) {
-                $update['gateway_payment_id'] = $paymentInfo['payment_id'];
+            if (!empty($paymentId) && empty($transaction->gateway_payment_id)) {
+                $update['gateway_payment_id'] = $paymentId;
             }
             if (!empty($update)) {
                 $transaction->update($update);
             }
 
-            // Queue processing so we return 200 quickly (reduces timeout risk under load)
             ProcessPaymentWebhook::dispatch(
                 $gatewayName,
-                $paymentInfo['order_id'] ?? null,
-                $paymentInfo['payment_id'] ?? null,
+                $orderId,
+                $paymentId,
                 $paymentInfo['status'] ?? 'unknown',
                 $paymentInfo['error_message'] ?? null,
             );
 
-            Log::info('[Webhook] Job dispatched, returning 200', [
+            Log::info('[Webhook] Job dispatched', [
                 'request_id' => $requestId,
-                'gateway' => $gatewayName,
-                'order_id' => $paymentInfo['order_id'] ?? null,
-                'payment_id' => $paymentInfo['payment_id'] ?? null,
                 'transaction_id' => $transaction->id,
             ]);
 
-            $response = response()->json(['status' => 'received'], 200);
-            Log::info('[Webhook] Response sent', ['request_id' => $requestId, 'http_status' => 200, 'body_status' => 'received']);
-            return $response;
+            return response()->json(['status' => 'received'], 200);
 
         } catch (\Exception $e) {
-            Log::error('[Webhook] Handler exception', [
+            Log::error('[Webhook] Exception', [
                 'request_id' => $requestId ?? null,
                 'gateway' => $gatewayName,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            // Still return 200 to prevent gateway from retrying
             return response()->json(['status' => 'error'], 200);
         }
     }
