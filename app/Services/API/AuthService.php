@@ -85,8 +85,7 @@ class AuthService
 
             $remainingDays = null;
             if ($end && $end->gte($now)) {
-                // inclusive of today and end date
-                $remainingDays = $now->diffInDays($end) + 1;
+                $remainingDays = (int) $now->diffInDays($end);
             }
 
             $plan = $subscription->plan;
