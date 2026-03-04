@@ -1,26 +1,19 @@
+
 .modal-backdrop {
     background-color: rgba(0, 0, 0, 0.4);
     opacity: 1;
     z-index: 1040 !important;
 }
-.modal-backdrop.show {
-    opacity: 1;
-}
-.modal {
-    z-index: 1050 !important;
-    position: fixed;
-}
-.modal-dialog {
-    z-index: 1051;
-    position: relative;
-}
+.modal-backdrop.show { opacity: 1; }
+.modal { z-index: 1050 !important; position: fixed; }
+.modal-dialog { z-index: 1051; position: relative; }
 .modal-content {
     position: relative;
     z-index: 1;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2);
 }
 
-/* Fix Select2 Clear Button Overlap */
+/* ---------- Select2 clear-button overlap fix ---------- */
 .select2-container .select2-selection--single .select2-selection__clear {
     margin-right: 0.5rem !important;
     z-index: 2;
@@ -28,4 +21,225 @@
 }
 .select2-container .select2-selection--single .select2-selection__rendered {
     padding-right: 2.25rem !important;
+}
+
+
+.section .section-header .section-header-button {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    align-items: center;
+    margin-left: auto;
+}
+
+
+.card-body .dataTables_wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.badge-pill { white-space: nowrap; }
+.custom-switch { min-width: 50px; }
+
+
+.card-statistic-1 .card-body {
+    font-size: 1.35rem;
+    word-break: break-word;
+}
+.card-statistic-1 .card-header h4 {
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+canvas { max-width: 100% !important; }
+pre { word-break: break-all; white-space: pre-wrap; }
+#filterSidebar .row { flex-wrap: wrap; }
+
+
+@media (max-width: 1199.98px) {
+    .card-statistic-1 .card-body { font-size: 1.2rem; }
+}
+
+
+@media (max-width: 991.98px) {
+    .modal-dialog.modal-lg {
+        max-width: 95%;
+        margin: 1rem auto;
+    }
+}
+
+
+@media (max-width: 767.98px) {
+    /* Stat cards */
+    .card-statistic-1 { margin-bottom: 0.5rem; }
+    .card-statistic-1 .card-icon {
+        width: 42px; height: 42px; line-height: 42px; font-size: 17px;
+    }
+    .card-statistic-1 .card-body { font-size: 1.05rem; }
+    .card-statistic-1 .card-header h4 { font-size: 0.78rem; }
+
+    /* Tables */
+    .table { font-size: 0.82rem; }
+    .table th, .table td { padding: 0.45rem 0.35rem; }
+
+    /* DataTable controls */
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        text-align: left !important;
+        float: none !important;
+        margin-bottom: 0.5rem;
+    }
+    .dataTables_wrapper .dataTables_filter input {
+        width: 100% !important;
+        max-width: 200px;
+    }
+    .dataTables_wrapper .dataTables_info { font-size: 0.78rem; text-align: center !important; }
+    .dataTables_wrapper .dataTables_paginate { text-align: center !important; }
+    .dataTables_wrapper .dataTables_paginate .pagination {
+        flex-wrap: wrap; justify-content: center;
+    }
+    .dataTables_wrapper .dataTables_paginate .page-link {
+        padding: 0.3rem 0.55rem; font-size: 0.78rem;
+    }
+
+    /* Filters – stack columns */
+    #filterSidebar .col-md-4 { flex: 0 0 100%; max-width: 100%; }
+
+    /* Charts */
+    canvas { min-height: 180px; }
+
+    /* Modal */
+    .modal-dialog,
+    .modal-dialog.modal-lg {
+        max-width: calc(100% - 1rem);
+        margin: 0.5rem auto;
+    }
+    .modal-body { padding: 0.75rem; }
+    .modal-header { padding: 0.65rem 0.75rem; }
+    .modal-header .modal-title { font-size: 1rem; }
+
+    .navbar-right .dropdown-menu { right: 0; left: auto; }
+    .main-footer { font-size: 0.78rem; padding: 12px 15px; }
+}
+
+@media (max-width: 575.98px) {
+    /* Section header – title + inline compact buttons */
+    .section .section-header {
+        padding: 10px 0;
+        gap: 0.35rem;
+    }
+    .section .section-header h1 {
+        font-size: 1.05rem !important;
+        flex: 0 0 auto;
+    }
+    .section .section-header .section-header-button {
+        gap: 0.2rem;
+        margin-left: auto;
+    }
+    .section .section-header .section-header-button .btn,
+    .section .section-header .section-header-breadcrumb .btn {
+        font-size: 0.68rem !important;
+        padding: 0.2rem 0.45rem !important;
+        white-space: nowrap;
+    }
+    /* Stisla sets breadcrumb to flex-basis:100%, undo it so it stays inline */
+    .section .section-header .section-header-breadcrumb {
+        flex-basis: auto;
+        margin-top: 0;
+    }
+
+    /* Stat cards */
+    .card-statistic-1 .card-icon {
+        width: 36px; height: 36px; line-height: 36px; font-size: 14px;
+    }
+    .card-statistic-1 .card-body { font-size: 0.92rem; }
+    .card-statistic-1 .card-header h4 { font-size: 0.7rem; }
+
+    /* Cards */
+    .card .card-body { padding: 0.6rem; }
+    .card .card-header { padding: 0.6rem; }
+    .card .card-header h4 { font-size: 0.88rem; }
+
+    /* Tables */
+    .table { font-size: 0.75rem; }
+    .table th, .table td { padding: 0.3rem 0.2rem; }
+    .table .btn-sm,
+    .table .btn-icon {
+        padding: 0.15rem 0.3rem;
+        font-size: 0.65rem;
+        width: 26px; height: 26px; line-height: 1;
+    }
+
+    /* DataTable */
+    .dataTables_wrapper .dataTables_filter input { max-width: none; }
+
+    /* Transaction detail stacking */
+    .card-body > .row > .col-md-4 {
+        margin-bottom: 0.05rem;
+        font-size: 0.75rem;
+    }
+    .card-body > .row > .col-md-8 { margin-bottom: 0.5rem; }
+
+    /* Modal form columns → single column */
+    .modal-body .row [class*="col-sm-"],
+    .modal-body .row [class*="col-md-"] {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .form-control, .select2-container { width: 100% !important; }
+
+    /* Main content – reduce side padding on phone */
+    .main-content {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+    }
+
+    .main-footer { padding: 10px 12px; font-size: 0.7rem; }
+    .main-footer .footer-left { text-align: center; }
+
+    canvas { min-height: 150px; }
+
+    .table-responsive .table th,
+    .table-responsive .table td {
+        font-size: 0.72rem;
+        padding: 0.25rem 0.18rem;
+    }
+}
+
+@media (max-width: 399.98px) {
+    .section .section-header h1 { font-size: 0.9rem !important; }
+    .section .section-header .section-header-button .btn {
+        font-size: 0.6rem !important;
+        padding: 0.15rem 0.35rem !important;
+    }
+
+    .card-statistic-1 .card-icon {
+        width: 30px; height: 30px; line-height: 30px; font-size: 12px;
+    }
+    .card-statistic-1 .card-wrap .card-body { font-size: 0.82rem; }
+
+    .card .card-body { padding: 0.4rem; }
+    .card .card-header { padding: 0.4rem; }
+
+    .modal-dialog,
+    .modal-dialog.modal-lg {
+        max-width: 100%;
+        margin: 0;
+    }
+    .modal-content { border-radius: 0; }
+}
+
+@media print {
+    .main-sidebar, .navbar, .main-footer,
+    .section-header-button, .dataTables_length,
+    .dataTables_filter, .dataTables_paginate,
+    .dataTables_info, .btn, .modal-backdrop, .modal {
+        display: none !important;
+    }
+    .main-content { margin-left: 0 !important; padding: 0 !important; }
+    .card { border: none !important; box-shadow: none !important; }
 }

@@ -10,9 +10,8 @@
         </div>
     </div>
 
-    <div class="section-body"
-         data-manage-route="{{ $viewData['manageRoute'] }}"
-         data-delete-route="{{ $viewData['deleteRoute'] }}">
+    <div class="section-body" data-manage-route="{{ $viewData['manageRoute'] }}"
+        data-delete-route="{{ $viewData['deleteRoute'] }}">
 
         <div class="card">
             <div class="card-body">

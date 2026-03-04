@@ -10,11 +10,11 @@
             </button>
         </div>
         <!--         <div class="section-header-button">
-                            <a href="{{ route('admin.gateways.export') }}" class="btn btn-outline-success btn-sm mr-2"><i class="fas fa-file-csv mr-1"></i> Export CSV</a>
-                            <button class="btn btn-primary add-record-btn">
-                                <i class="fas fa-plus mr-1"></i> Add New
-                            </button>
-                        </div> -->
+                                <a href="{{ route('admin.gateways.export') }}" class="btn btn-outline-success btn-sm mr-2"><i class="fas fa-file-csv mr-1"></i> Export CSV</a>
+                                <button class="btn btn-primary add-record-btn">
+                                    <i class="fas fa-plus mr-1"></i> Add New
+                                </button>
+                            </div> -->
     </div>
 
     <div class="section-body" data-manage-route="{{ $viewData['manageRoute'] }}"

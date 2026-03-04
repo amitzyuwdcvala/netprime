@@ -3,8 +3,8 @@
 @section('content')
     <div class="section-header">
         <h1>{{ $viewData['title'] }}</h1>
-        <div class="section-header-breadcrumb">
-            <a href="{{ route('admin.payments.index') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back to Payments</a>
+        <div class="section-header-button">
+            <a href="{{ route('admin.payments.index') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left mr-1"></i> Back to Payments</a>
         </div>
     </div>
 
@@ -19,7 +19,7 @@
                     <div class="card-body">
                         <div class="row mb-3">
                             <div class="col-md-4 text-muted">Transaction ID</div>
-                            <div class="col-md-8 font-weight-bold">{{ $transaction->transaction_id ?? '-' }}</div>
+                            <div class="col-md-8 font-weight-bold text-break">{{ $transaction->transaction_id ?? '-' }}</div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-4 text-muted">Android ID</div>
@@ -106,11 +106,11 @@
                     <div class="card-body">
                         <div class="row mb-3">
                             <div class="col-md-4 text-muted">Order ID</div>
-                            <div class="col-md-8"><code>{{ $transaction->gateway_order_id ?? '-' }}</code></div>
+                            <div class="col-md-8 text-break"><code>{{ $transaction->gateway_order_id ?? '-' }}</code></div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-4 text-muted">Payment ID</div>
-                            <div class="col-md-8"><code>{{ $transaction->gateway_payment_id ?? '-' }}</code></div>
+                            <div class="col-md-8 text-break"><code>{{ $transaction->gateway_payment_id ?? '-' }}</code></div>
                         </div>
                     </div>
                 </div>

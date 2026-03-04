@@ -139,7 +139,7 @@
                 errorElement: 'span',
                 errorPlacement: function(error, element) {
                     error.addClass('invalid-feedback');
-                    element.closest('.col-sm-12, .col-sm-6, .col-md-6, .col-md-4').append(error);
+                    element.closest('[class*="col-"]').append(error);
                 },
                 highlight: function(element) {
                     $(element).addClass('is-invalid');

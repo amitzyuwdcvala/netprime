@@ -102,7 +102,9 @@
                         <h4>Active subscriptions by plan</h4>
                     </div>
                     <div class="card-body">
-                        <canvas id="chart-subscriptions" height="200"></canvas>
+                        <div style="position:relative; min-height:220px;">
+                            <canvas id="chart-subscriptions"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -114,7 +116,9 @@
                         <h4>Revenue by plan</h4>
                     </div>
                     <div class="card-body">
-                        <canvas id="chart-revenue" height="200"></canvas>
+                        <div style="position:relative; min-height:220px;">
+                            <canvas id="chart-revenue"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
