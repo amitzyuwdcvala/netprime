@@ -48,6 +48,15 @@ class PaymentTransactionDataTable extends DataTable
             $query->where('status', request('filter_status'));
         }
 
+        $startDate = request('filter_start_date');
+        $endDate = request('filter_end_date');
+        if ($startDate && strtotime($startDate) !== false) {
+            $query->where(\Illuminate\Support\Facades\DB::raw('COALESCE(paid_at, created_at)'), '>=', $startDate . ' 00:00:00');
+        }
+        if ($endDate && strtotime($endDate) !== false) {
+            $query->where(\Illuminate\Support\Facades\DB::raw('COALESCE(paid_at, created_at)'), '<=', $endDate . ' 23:59:59');
+        }
+
         $query->orderBy('created_at', 'desc');
         return $query;
     }

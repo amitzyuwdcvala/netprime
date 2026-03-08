@@ -58,11 +58,21 @@ class PaymentController extends Controller
         ]);
     }
 
-    public function export(): StreamedResponse
+    public function export(\Illuminate\Http\Request $request): StreamedResponse
     {
         $filename = 'payments_' . date('Y-m-d_His') . '.csv';
         $headers = ['#', 'Transaction ID', 'Android ID', 'Plan', 'Amount', 'Status', 'Gateway', 'Paid At'];
         $query = PaymentTransaction::with(['plan', 'gateway'])->orderBy('created_at', 'desc');
+
+        if ($request->filled('filter_status')) {
+            $query->where('status', $request->input('filter_status'));
+        }
+        if ($request->filled('filter_start_date') && strtotime($request->input('filter_start_date')) !== false) {
+            $query->where(\Illuminate\Support\Facades\DB::raw('COALESCE(paid_at, created_at)'), '>=', $request->input('filter_start_date') . ' 00:00:00');
+        }
+        if ($request->filled('filter_end_date') && strtotime($request->input('filter_end_date')) !== false) {
+            $query->where(\Illuminate\Support\Facades\DB::raw('COALESCE(paid_at, created_at)'), '<=', $request->input('filter_end_date') . ' 23:59:59');
+        }
 
         return response()->streamDownload(function () use ($headers, $query) {
             $handle = fopen('php://output', 'w');

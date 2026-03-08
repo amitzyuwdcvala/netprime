@@ -3,9 +3,52 @@
 @section('content')
     <div class="section-header">
         <h1>Dashboard</h1>
+        <div class="section-header-button">
+            <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="collapse" data-target="#dashboard-date-filter"
+                aria-expanded="{{ ($stats['filter_start'] ?? null) ? 'true' : 'false' }}" aria-controls="dashboard-date-filter">
+                <i class="fas fa-calendar-alt mr-1"></i> Date filter
+            </button>
+        </div>
     </div>
 
     <div class="section-body">
+        <div class="card collapse mb-3 {{ ($stats['filter_start'] ?? null) ? 'show' : '' }}" id="dashboard-date-filter">
+            <div class="card-body py-3">
+                <form method="get" action="{{ route('admin.dashboard') }}" class="dashboard-filter-form" id="dashboard-date-form">
+                    <div class="row align-items-end flex-wrap">
+                        <div class="col-md-3 col-6 mb-2 mb-md-0">
+                            <label for="start_date" class="form-label mb-1 small font-weight-bold">Start date</label>
+                            <input type="date" name="start_date" id="start_date" class="form-control form-control-sm"
+                                value="{{ $stats['filter_start'] ?? '' }}" max="{{ $stats['filter_end'] ?? date('Y-m-d') }}">
+                        </div>
+                        <div class="col-md-3 col-6 mb-2 mb-md-0">
+                            <label for="end_date" class="form-label mb-1 small font-weight-bold">End date</label>
+                            <input type="date" name="end_date" id="end_date" class="form-control form-control-sm"
+                                value="{{ $stats['filter_end'] ?? '' }}" min="{{ $stats['filter_start'] ?? '' }}" max="{{ date('Y-m-d') }}">
+                        </div>
+                        <div class="col-md-4 col-12 mt-2 mt-md-0">
+                            <button type="submit" class="btn btn-primary btn-sm mr-1"><i class="fas fa-filter mr-1"></i> Apply</button>
+                            <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary btn-sm">Clear</a>
+                        </div>
+                    </div>
+                </form>
+                @if($stats['filter_start'] ?? null)
+                    <p class="small text-muted mb-0 mt-2">Showing data from <strong>{{ \Carbon\Carbon::parse($stats['filter_start'])->format('d M Y') }}</strong> to <strong>{{ \Carbon\Carbon::parse($stats['filter_end'])->format('d M Y') }}</strong>. <a href="{{ route('admin.dashboard') }}">Show all time</a>.</p>
+                @endif
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var start = document.getElementById('start_date');
+                var end = document.getElementById('end_date');
+                if (start && end) {
+                    start.addEventListener('change', function() { end.min = start.value || ''; });
+                    end.addEventListener('change', function() { start.max = end.value || ''; });
+                }
+            });
+        </script>
+
         <div class="row">
             <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                 <div class="card card-statistic-1">

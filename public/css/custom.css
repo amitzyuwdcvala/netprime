@@ -57,6 +57,12 @@
 canvas { max-width: 100% !important; }
 pre { word-break: break-all; white-space: pre-wrap; }
 #filterSidebar .row { flex-wrap: wrap; }
+.dashboard-filter-form .form-control { min-width: 0; }
+#dashboard-date-filter .row { flex-wrap: wrap; }
+@media (max-width: 575.98px) {
+    #dashboard-date-filter .col-6 { flex: 0 0 100%; max-width: 100%; }
+    #dashboard-date-filter .col-md-4 { margin-top: 0.5rem; }
+}
 
 
 @media (max-width: 1199.98px) {

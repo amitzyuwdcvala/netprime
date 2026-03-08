@@ -14,12 +14,19 @@ class DashboardController extends Controller
         $this->dashboardService = $dashboardService;
     }
 
-    /**
-     * Display admin dashboard.
-     */
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
-        $stats = $this->dashboardService->getDashboardStats();
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        if ($startDate && $endDate && strtotime($startDate) !== false && strtotime($endDate) !== false) {
+            if (strtotime($startDate) > strtotime($endDate)) {
+                $endDate = $startDate;
+            }
+        } else {
+            $startDate = null;
+            $endDate = null;
+        }
+        $stats = $this->dashboardService->getDashboardStats($startDate, $endDate);
 
         return view('admin.dashboard.index', compact('stats'));
     }
