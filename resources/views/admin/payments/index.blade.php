@@ -74,7 +74,7 @@
 
             $('#filter_status, #filter_start_date, #filter_end_date').on('change', function () {
                 updateTable();
-                checkFilters();
+                scheduleCheckFilters();
             });
 
             $('#reset-filters-btn').click(function () {
@@ -86,6 +86,12 @@
             });
             checkFilters();
         });
+
+        function scheduleCheckFilters() {
+            setTimeout(function () {
+                checkFilters();
+            }, 0);
+        }
 
         function updateTable() {
             const dataTableID = "{{ $viewData['dataTableID'] ?? 'payment-transaction-table' }}";
@@ -113,7 +119,9 @@
 
             if ($.fn.DataTable.isDataTable("#" + dataTableID)) {
                 var table = $dataTable.DataTable();
-                table.ajax.url(url).load();
+                table.ajax.url(url).load(function () {
+                    checkFilters();
+                });
             }
         }
 
@@ -121,7 +129,7 @@
             var filterStatus = $('#filter_status').val();
             var filterStart = $('#filter_start_date').val();
             var filterEnd = $('#filter_end_date').val();
-            var hasFilter = (filterStatus != null && filterStatus !== "") || filterStart || filterEnd;
+            var hasFilter = (filterStatus != null && filterStatus !== "") || (filterStart && filterStart.length > 0) || (filterEnd && filterEnd.length > 0);
             $('#reset-filters-container').toggle(hasFilter);
         }
     </script>
