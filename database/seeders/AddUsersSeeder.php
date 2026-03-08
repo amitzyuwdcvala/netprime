@@ -20,7 +20,8 @@ class AddUsersSeeder extends Seeder
      * - start_date: Y-m-d, or null for today
      * - end_date: Y-m-d, or null to compute from plan days from start_date
      * - paid_amount: 0 for manual/gift, or actual amount if paid via gateway
-     * - payment_gateway: 'razorpay' to set Razorpay as gateway (for “paid” look), or null for manual/no gateway
+     * - payment_gateway: 'razorpay' to set Razorpay as gateway (for “paid” look),      or null for manual/no gateway
+     * - video_click_count: int (default 0)
      */
     protected array $users = [
         [
@@ -30,9 +31,10 @@ class AddUsersSeeder extends Seeder
             'plan_id'         => null,
             'start_date'      => '2026-03-01',
             'end_date'        => '2026-03-31',
-            'paid_amount'     => 0,
-            'payment_gateway' => null,
-            'scenario'        => 'VIP manual/gift, Monthly',
+            'paid_amount'      => 0,
+            'payment_gateway'  => null,
+            'video_click_count' => 0,
+            // 'scenario'          => 'VIP manual/gift, Monthly',
         ],
     ];
 
@@ -69,9 +71,9 @@ class AddUsersSeeder extends Seeder
             $user = User::firstOrCreate(
                 ['android_id' => $row['android_id']],
                 [
-                    'is_vip'           => $row['is_vip'],
-                    'video_click_count' => 0,
-                    'added_by'         => null,
+                    'is_vip'            => $row['is_vip'],
+                    'video_click_count' => $row['video_click_count'] ?? 0,
+                    'added_by'          => null,
                 ]
             );
 
@@ -82,11 +84,12 @@ class AddUsersSeeder extends Seeder
                 }
 
                 $hasActive = UserSubscription::where('android_id', $user->android_id)
-                    ->where('status', SubscriptionStatus::ACTIVE)
-                    ->where('end_date', '>=', now()->toDateString())
+                    ->active()
                     ->exists();
 
                 if (!$hasActive) {
+                    $startAt = Carbon::parse($startDate)->startOfDay();
+                    $endAt = Carbon::parse($endDate)->endOfDay();
                     UserSubscription::create([
                         'android_id'          => $user->android_id,
                         'plan_id'             => $plan->id,
@@ -97,13 +100,14 @@ class AddUsersSeeder extends Seeder
                         'days'                => $days,
                         'start_date'          => $startDate,
                         'end_date'            => $endDate,
+                        'start_at'            => $startAt,
+                        'end_at'              => $endAt,
                         'status'              => SubscriptionStatus::ACTIVE,
                     ]);
                 }
             }
 
-            $scenario = $row['scenario'] ?? '';
-            $this->command->info("User {$row['android_id']} " . ($row['is_vip'] ? "VIP until {$endDate}" : 'non-VIP') . ($scenario ? " [{$scenario}]" : ''));
+            $this->command->info("User {$row['android_id']} " . ($row['is_vip'] ? "VIP until {$endDate}" : 'non-VIP'));
         }
     }
 }

@@ -140,6 +140,10 @@ class WebhookController extends Controller
             if (!empty($paymentId) && empty($transaction->gateway_payment_id)) {
                 $update['gateway_payment_id'] = $paymentId;
             }
+            $isSuccess = in_array($paymentInfo['status'] ?? '', ['success', 'captured'], true);
+            if ($isSuccess && $transaction->paid_at === null) {
+                $update['paid_at'] = now();
+            }
             if (!empty($update)) {
                 $transaction->update($update);
             }

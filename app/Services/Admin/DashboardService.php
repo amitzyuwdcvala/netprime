@@ -41,8 +41,7 @@ class DashboardService
     {
         $totalUsers = User::count();
 
-        $activeSubscriptions = UserSubscription::where('status', SubscriptionStatus::ACTIVE)
-            ->where('end_date', '>=', now()->toDateString())
+        $activeSubscriptions = UserSubscription::active()
             ->count();
 
         // Only count real paid transactions in revenue (ignore free/manual subscriptions)
@@ -85,8 +84,7 @@ class DashboardService
     public function getPlanStats(): array
     {
         $plans = SubscriptionPlan::orderBy('sort_order')->get();
-        $activeCounts = UserSubscription::where('status', SubscriptionStatus::ACTIVE)
-            ->where('end_date', '>=', now()->toDateString())
+        $activeCounts = UserSubscription::active()
             ->select('plan_id', DB::raw('count(*) as count'))
             ->groupBy('plan_id')
             ->pluck('count', 'plan_id');
@@ -121,8 +119,7 @@ class DashboardService
         $plans = SubscriptionPlan::orderBy('sort_order')->get();
         $labels = $plans->pluck('name')->toArray();
 
-        $activeCounts = UserSubscription::where('status', SubscriptionStatus::ACTIVE)
-            ->where('end_date', '>=', now()->toDateString())
+        $activeCounts = UserSubscription::active()
             ->select('plan_id', DB::raw('count(*) as count'))
             ->groupBy('plan_id')
             ->pluck('count', 'plan_id');

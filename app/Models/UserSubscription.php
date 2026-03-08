@@ -19,6 +19,8 @@ class UserSubscription extends Model
         'days',
         'start_date',
         'end_date',
+        'start_at',
+        'end_at',
         'status',
     ];
 
@@ -27,6 +29,8 @@ class UserSubscription extends Model
         'days' => 'integer',
         'start_date' => 'date',
         'end_date' => 'date',
+        'start_at' => 'datetime',
+        'end_at' => 'datetime',
     ];
 
     public function user()
@@ -44,12 +48,28 @@ class UserSubscription extends Model
         return $this->belongsTo(PaymentGateway::class);
     }
 
-    /**
-     * Check if subscription is active
-     */
+    public function scopeActive($query)
+    {
+        $now = now();
+        $today = $now->toDateString();
+        return $query->where('status', \App\Constants\SubscriptionStatus::ACTIVE)
+            ->where(function ($q) use ($now, $today) {
+                $q->where(function ($q2) use ($today) {
+                    $q2->whereNull('end_at')->where('end_date', '>=', $today);
+                })->orWhere(function ($q2) use ($now) {
+                    $q2->whereNotNull('end_at')->where('end_at', '>=', $now);
+                });
+            });
+    }
+
     public function isActive(): bool
     {
-        return $this->status === \App\Constants\SubscriptionStatus::ACTIVE
-            && $this->end_date >= now()->toDateString();
+        if ($this->status !== \App\Constants\SubscriptionStatus::ACTIVE) {
+            return false;
+        }
+        if ($this->end_at !== null) {
+            return $this->end_at >= now();
+        }
+        return $this->end_date >= now()->toDateString();
     }
 }

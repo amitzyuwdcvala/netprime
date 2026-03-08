@@ -24,11 +24,8 @@ class CheckSubscriptionExpiration extends Command
      *
      * @var string
      */
-    protected $description = 'Check and expire subscriptions that have passed their end date (daily cron). Does NOT reset video_click_count – remaining free videos persist after plan end.';
+    protected $description = 'Check and expire subscriptions past their end time (run hourly for exact-time expiry). Does NOT reset video_click_count.';
 
-    /**
-     * Execute the console command.
-     */
     public function handle()
     {
         Log::info('[Cron] Subscription expiration check started');
@@ -37,12 +34,18 @@ class CheckSubscriptionExpiration extends Command
 
         $expiredCount = 0;
         $updatedUsers = 0;
+        $now = now();
+        $today = $now->toDateString();
 
         try {
-            DB::transaction(function () use (&$expiredCount, &$updatedUsers) {
-                // Find all active subscriptions that have expired
+            DB::transaction(function () use (&$expiredCount, &$updatedUsers, $now, $today) {
                 $expiredSubscriptions = UserSubscription::where('status', SubscriptionStatus::ACTIVE)
-                    ->where('end_date', '<', now()->toDateString())
+                    ->where(function ($q) use ($now, $today) {
+                        $q->whereNotNull('end_at')->where('end_at', '<', $now)
+                            ->orWhere(function ($q2) use ($today) {
+                                $q2->whereNull('end_at')->where('end_date', '<', $today);
+                            });
+                    })
                     ->get();
 
                 foreach ($expiredSubscriptions as $subscription) {

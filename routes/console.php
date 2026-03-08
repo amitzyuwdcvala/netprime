@@ -9,7 +9,6 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('subscriptions:check-expiration')
-    ->daily()
-    ->at('00:00')
+    ->hourly()
     ->timezone('Asia/Kolkata')
     ->withoutOverlapping();

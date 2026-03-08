@@ -101,15 +101,16 @@ class UserService
                         return $this->errorResponse([], 'Please select a valid subscription plan for VIP user.', 422);
                     }
 
-                    $startDate = Carbon::now()->startOfDay();
+                    $startAt = Carbon::now();
                     $days = (int) $plan->days;
                     if ($days <= 0) {
                         DB::rollBack();
                         return $this->errorResponse([], 'Selected plan must have a positive number of days.', 422);
                     }
-                    $endDate = (clone $startDate)->addDays($days - 1);
+                    $endAt = (clone $startAt)->addDays($days);
+                    $startDate = $startAt->toDateString();
+                    $endDate = $endAt->toDateString();
 
-                    // Create or update manual subscription (paid_amount = 0, no gateway)
                     $subscription = UserSubscription::where('android_id', $user->android_id)
                         ->orderByDesc('created_at')
                         ->first();
@@ -119,8 +120,10 @@ class UserService
                             'plan_id' => $vipPlanId,
                             'paid_amount' => 0,
                             'days' => $days,
-                            'start_date' => $startDate->toDateString(),
-                            'end_date' => $endDate->toDateString(),
+                            'start_date' => $startDate,
+                            'end_date' => $endDate,
+                            'start_at' => $startAt,
+                            'end_at' => $endAt,
                             'status' => SubscriptionStatus::ACTIVE,
                         ]);
                     } else {
@@ -132,8 +135,10 @@ class UserService
                             'gateway_payment_id' => null,
                             'paid_amount' => 0,
                             'days' => $days,
-                            'start_date' => $startDate->toDateString(),
-                            'end_date' => $endDate->toDateString(),
+                            'start_date' => $startDate,
+                            'end_date' => $endDate,
+                            'start_at' => $startAt,
+                            'end_at' => $endAt,
                             'status' => SubscriptionStatus::ACTIVE,
                         ]);
                     }
@@ -174,8 +179,7 @@ class UserService
             }
 
             $hasActiveSubscription = UserSubscription::where('android_id', $user->android_id)
-                ->where('status', SubscriptionStatus::ACTIVE)
-                ->where('end_date', '>=', now()->toDateString())
+                ->active()
                 ->exists();
 
             if ($hasActiveSubscription) {

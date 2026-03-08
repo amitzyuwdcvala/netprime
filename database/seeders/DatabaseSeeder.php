@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
             PlanSeeder::class,
             PaymentGatewaySeeder::class,
-            AddUsersSeeder::class,
+            // AddUsersSeeder::class,
         ]);
     }
 }

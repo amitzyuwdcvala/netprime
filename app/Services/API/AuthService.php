@@ -21,7 +21,7 @@ class AuthService
         try {
             DB::beginTransaction();
             // dd($request->all());
-            $androidId = $request->input('android_id');
+            $androidId = $request->header('X-Android-Id') ?? $request->header('X-Android-ID') ?? $request->input('android_id');
 
             $user = User::find($androidId);
 

@@ -40,11 +40,10 @@ class PaymentService
             $planId = $request->input('plan_id');
             $androidId = $user->android_id;
 
-            Log::info('[CreateOrder] started', ['android_id' => $androidId, 'plan_id' => $planId]);
+            // Log::info('[CreateOrder] started', ['android_id' => $androidId, 'plan_id' => $planId]);
 
             $activeSubscription = UserSubscription::where('android_id', $androidId)
-                ->where('status', SubscriptionStatus::ACTIVE)
-                ->where('end_date', '>=', now()->toDateString())
+                ->active()
                 ->first();
 
             if ($activeSubscription) {
@@ -289,8 +288,10 @@ class PaymentService
             $plan = $transaction->plan;
             $user = $transaction->user;
 
-            $startDate = now()->toDateString();
-            $endDate = now()->addDays($plan->days)->toDateString();
+            $startAt = $transaction->paid_at ?? now();
+            $endAt = (clone $startAt)->addDays($plan->days);
+            $startDate = $startAt->toDateString();
+            $endDate = $endAt->toDateString();
 
             UserSubscription::where('android_id', $user->android_id)
                 ->where('status', SubscriptionStatus::ACTIVE)
@@ -309,6 +310,8 @@ class PaymentService
                     'days' => $plan->days,
                     'start_date' => $startDate,
                     'end_date' => $endDate,
+                    'start_at' => $startAt,
+                    'end_at' => $endAt,
                     'status' => SubscriptionStatus::ACTIVE,
                 ]
             );
@@ -317,7 +320,9 @@ class PaymentService
             $user->save();
 
             $transaction->status = PaymentStatus::SUCCESS;
-            $transaction->paid_at = now();
+            if ($transaction->paid_at === null) {
+                $transaction->paid_at = $startAt;
+            }
             $transaction->error_message = null;
             $transaction->error_code = null;
             $transaction->failed_at = null;
@@ -346,7 +351,7 @@ class PaymentService
     private function getSubscriptionData(string $androidId): ?array
     {
         $subscription = UserSubscription::where('android_id', $androidId)
-            ->where('status', SubscriptionStatus::ACTIVE)
+            ->active()
             ->first();
 
         if (!$subscription) {

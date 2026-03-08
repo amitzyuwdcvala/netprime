@@ -68,8 +68,7 @@ class User extends Authenticatable
     public function subscription()
     {
         return $this->hasOne(UserSubscription::class, 'android_id', 'android_id')
-            ->where('status', \App\Constants\SubscriptionStatus::ACTIVE)
-            ->where('end_date', '>=', now()->toDateString());
+            ->active();
     }
 
     /**
@@ -119,8 +118,7 @@ class User extends Authenticatable
             return true;
         }
 
-        return $subscription->status === \App\Constants\SubscriptionStatus::EXPIRED
-            || $subscription->end_date < now()->toDateString();
+        return !$subscription->isActive();
     }
 
     /**
