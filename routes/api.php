@@ -19,5 +19,3 @@ Route::prefix('v1')->middleware(['route_classifier'])->group(function () {
     });
     require __DIR__ . '/api/webhook.php';
 });
-
-https://netprime.store/api/v1/webhook/cashfree
