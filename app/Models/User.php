@@ -10,6 +10,16 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    protected static function booted(): void
+    {
+        static::created(function () {
+            try {
+                app(\App\Services\Admin\DashboardService::class)->clearCache();
+            } catch (\Throwable $e) {
+            }
+        });
+    }
+
     /**
      * Primary key is android_id (string, not UUID)
      */

@@ -9,6 +9,18 @@ class UserSubscription extends Model
 {
     use HasUuids;
 
+    protected static function booted(): void
+    {
+        foreach (['created', 'updated', 'deleted'] as $event) {
+            static::$event(function () {
+                try {
+                    app(\App\Services\Admin\DashboardService::class)->clearCache();
+                } catch (\Throwable $e) {
+                }
+            });
+        }
+    }
+
     protected $fillable = [
         'android_id',
         'plan_id',
