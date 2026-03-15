@@ -2,17 +2,14 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AdNetworkController;
+use App\Http\Controllers\API\VideoAccessController;
 
-/**
- * API User Routes
- * Protected routes - auth:sanctum required
- */
+Route::post('/video/access', [VideoAccessController::class, 'access'])
+    ->middleware('throttle:video_access')
+    ->name('api.video.access');
 
 Route::prefix('self')->group(function () {
-    // Route::get('details', [UserController::class, 'self_information']);
-    // Route::get('profile', [UserController::class, 'view_profile']);
-    // Route::post('profile', [UserController::class, 'manage_profile']);
+
 });
 
-/** Ad Settings (public for now - move to auth if needed) */
 Route::get('/ads-settings', [AdNetworkController::class, 'get_ads_settings']);

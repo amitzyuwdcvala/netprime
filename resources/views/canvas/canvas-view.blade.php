@@ -1,7 +1,10 @@
-{{-- Canvas View - Offcanvas form renderer --}}
-{{-- Consumes $form from Schema class --}}
-
 @if(isset($form))
+    <style>
+        /* VIP-specific rows are hidden by default; toggled via JS when 'User is VIP' is checked */
+        .vip-details {
+            display: none;
+        }
+    </style>
     <form id="{{ $form['formID'] }}" action="{{ $form['saveRoute'] }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="row">
@@ -88,6 +91,7 @@
                                            id="{{ $field['name'] }}"
                                            value="1"
                                            {{ ($field['defaultValue'] ?? false) ? 'checked' : '' }}
+                                           {{ isset($field['disabled']) && $field['disabled'] ? 'disabled' : '' }}
                                     >
                                     <label class="form-check-label" for="{{ $field['name'] }}">
                                         {{ $field['checkboxLabel'] ?? $field['label'] ?? '' }}
@@ -126,7 +130,6 @@
         </div>
     </form>
 
-    {{-- jQuery Validate rules injection --}}
     @if(!empty($form['validations']))
     <script>
         $(document).ready(function() {
@@ -136,7 +139,7 @@
                 errorElement: 'span',
                 errorPlacement: function(error, element) {
                     error.addClass('invalid-feedback');
-                    element.closest('.col-sm-12, .col-sm-6, .col-md-6, .col-md-4').append(error);
+                    element.closest('[class*="col-"]').append(error);
                 },
                 highlight: function(element) {
                     $(element).addClass('is-invalid');

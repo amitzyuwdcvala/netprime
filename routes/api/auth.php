@@ -1,11 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\AuthController;
 use Illuminate\Support\Facades\Route;
 
-/**
- * API Authentication Routes
- * Public routes - no auth required
- */
-
-// Route::post('/register', [RegisterController::class, 'register'])->name('api.register');
-// Route::post('/login', [LoginController::class, 'login'])->name('api.login');
+Route::post('/register', [AuthController::class, 'register'])->name('api.register');

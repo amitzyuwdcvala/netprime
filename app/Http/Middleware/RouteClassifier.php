@@ -8,9 +8,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RouteClassifier
 {
-    /**
-     * Classify the route type (api or web) for ApiResponses trait.
-     */
     public function handle(Request $request, Closure $next): Response
     {
         if ($request->is('api/*')) {

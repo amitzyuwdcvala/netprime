@@ -12,13 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->uuid('android_id')->primary();
+            $table->string('android_id')->primary();
             $table->boolean('is_vip')->default(false);
             $table->integer('video_click_count')->default(5);
-            $table->string('order_id')->nullable();
-            $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
+            
+            // Add indexes for performance
+            $table->index('is_vip', 'idx_users_is_vip');
+            $table->index('created_at', 'idx_users_created_at');
         });
 
         Schema::create('sessions', function (Blueprint $table) {

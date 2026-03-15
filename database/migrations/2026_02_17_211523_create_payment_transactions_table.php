@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('payment_transactions', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('plan_id')->constrained('subscription_plans')->onDelete('cascade');
-            $table->foreignId('payment_gateway_id')->constrained('payment_gateways')->onDelete('restrict');
+            $table->string('android_id')->index()->references('android_id')->on('users')->onDelete('cascade')->nullable();
+
+            $table->uuid('plan_id')->index()->references('id')->on('subscription_plans')->onDelete('cascade')->nullable();
+            $table->uuid('payment_gateway_id')->index()->references('id')->on('payment_gateways')->onDelete('restrict')->nullable();
 
             $table->string('transaction_id', 50)->unique()->comment('Our internal transaction ID');
             $table->string('gateway_order_id', 100)->nullable()->comment('Gateway order ID (Razorpay order_id, PhonePe merchantTransactionId, etc)');
@@ -25,7 +26,7 @@ return new class extends Migration
             $table->decimal('amount', 10, 2)->comment('Payment amount in INR');
             $table->string('currency', 3)->default('INR');
 
-            $table->enum('status', ['initiated', 'pending', 'success', 'failed', 'refunded'])->default('initiated')->comment('Payment status');
+            $table->enum('status', ['initiated', 'pending', 'pending_webhook', 'success', 'failed', 'refunded'])->default('initiated')->comment('Payment status');
 
             $table->string('payment_method', 50)->nullable()->comment('UPI, card, netbanking, wallet');
             $table->string('card_last4', 4)->nullable()->comment('Last 4 digits of card');
@@ -43,13 +44,14 @@ return new class extends Migration
             $table->timestamp('failed_at')->nullable()->comment('When payment failed');
             $table->timestamps();
 
-            $table->index('transaction_id');
-            $table->index('gateway_order_id');
-            $table->index('gateway_payment_id');
-            $table->index(['user_id', 'status']);
-            $table->index(['payment_gateway_id', 'status']);
-            $table->index(['status', 'created_at']);
-            $table->index('created_at'); // For date range queries
+            // Performance indexes
+            $table->index('transaction_id', 'idx_payment_transactions_transaction_id');
+            $table->index('gateway_order_id', 'idx_payment_transactions_gateway_order');
+            $table->index('gateway_payment_id', 'idx_payment_transactions_gateway_payment');
+            $table->index(['android_id', 'status'], 'idx_payment_transactions_android_status');
+            $table->index(['payment_gateway_id', 'status'], 'idx_payment_transactions_gateway_status');
+            $table->index(['status', 'created_at'], 'idx_payment_transactions_status_created');
+            $table->index('created_at', 'idx_payment_transactions_created_at');
         });
     }
 

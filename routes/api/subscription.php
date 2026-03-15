@@ -1,14 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\SubscriptionController;
 
-/**
- * API Subscription Routes
- * Protected routes - auth:sanctum required
- */
-
-// Route::prefix('subscription')->group(function () {
-//     Route::get('/plans', [SubscriptionController::class, 'get_plans']);
-//     Route::post('/create-order', [SubscriptionController::class, 'create_order']);
-//     Route::get('/status', [SubscriptionController::class, 'subscription_status']);
-// });
+// GET subscription/plans is registered in api.php as public (no auth required)
+Route::prefix('subscription')->group(function () {
+    // Other subscription routes (if any) go here; plans is public in api.php
+});

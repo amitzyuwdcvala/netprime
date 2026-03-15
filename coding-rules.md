@@ -10,7 +10,7 @@
 
 - **Project Name**: NetPrime Dashboard & Movie App API
 - **Framework**: Laravel 11 (PHP 8.2+), **Database**: MySQL
-- **Auth**: Sanctum (API tokens for mobile) + Session (admin dashboard)
+- **Auth**: android_id on every API call (no tokens); Session (admin dashboard)
 - **Payment**: Razorpay, PhonePe, PayU, Cashfree (one active at a time)
 - **Admin Panel**: Blade + Bootstrap 5 + jQuery + Yajra DataTables
 - **API Consumers**: Android/iOS mobile app
@@ -296,7 +296,7 @@ Route::prefix('v1')->middleware(['route_classifier'])->group(function () {
 });
 ```
 
-### 9.2 Protected routes: `auth:sanctum` + role middleware
+### 9.2 Protected API routes: `android_auth` (android_id in header/body)
 
 ### 9.3 Web admin routes: `auth` + session middleware, grouped under `admin` prefix
 
