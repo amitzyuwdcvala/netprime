@@ -65,7 +65,8 @@ class CashfreeService implements PaymentGatewayInterface
                     'customer_name'  => 'App User',
                 ],
                 'order_meta' => [
-                    'notify_url' => url('/api/v1/webhook/cashfree'), // webhook url
+                    'notify_url' => url('/api/v1/webhook/cashfree'),
+                    'return_url' => url('/api/v1/payment/cashfree/callback'),
                 ],
                 'order_tags' => [
                     'android_id' => $metadata['android_id'],

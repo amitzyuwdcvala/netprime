@@ -27,6 +27,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         return view('test-checkout', ['razorpay_key' => $razorpay_key]);
     })->name('test-checkout')->middleware('auth:admin');
 
+    Route::get('test-checkout-cashfree', function () {
+        return view('test-checkout-cashfree');
+    })->name('test-checkout-cashfree')->middleware('auth:admin');
+
     Route::middleware(['auth:admin', 'prevent_back_history'])->group(function () {
         require __DIR__ . '/web/admin.php';
     });

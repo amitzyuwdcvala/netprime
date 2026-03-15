@@ -85,7 +85,7 @@ class PaymentService
 
             // Store order metadata in cache (24 hours) so webhook/verify can create the DB row later
             $cacheKey = 'payment_order:' . $gatewayResponse['order_id'];
-            Cache::put($cacheKey, [
+            $cacheData = [
                 'transaction_id' => $transactionId,
                 'android_id' => $androidId,
                 'plan_id' => $planId,
@@ -96,7 +96,16 @@ class PaymentService
                 'gateway_response' => $gatewayResponse['gateway_response'] ?? [],
                 'user_agent' => $request->userAgent(),
                 'ip_address' => $request->ip(),
-            ], 86400);
+            ];
+            Cache::put($cacheKey, $cacheData, 86400);
+
+            // Verify cache was stored
+            $cacheVerify = Cache::get($cacheKey);
+            Log::info('[CreateOrder] Cache stored', [
+                'cache_key' => $cacheKey,
+                'cache_stored' => $cacheVerify !== null,
+                'cache_driver' => config('cache.default'),
+            ]);
 
             return $this->successResponse([
                 'message' => 'Order created successfully',
@@ -135,15 +144,61 @@ class PaymentService
     public function verify_payment_service($request)
     {
         try {
-            $androidId = $request->input('android_id');
+            // Get android_id from authenticated user (header) or body fallback
+            $androidId = $request->user()?->android_id ?? $request->input('android_id');
             $gatewayPaymentId = $request->input('gateway_payment_id');
             $gatewaySignature = $request->input('gateway_signature');
             $gatewayOrderId = $request->input('gateway_order_id');
 
+            Log::info('[VerifyService] Starting verification', [
+                'android_id' => $androidId,
+                'android_id_source' => $request->user() ? 'auth_user' : 'body',
+                'gateway_order_id' => $gatewayOrderId,
+                'gateway_payment_id' => $gatewayPaymentId,
+                'has_signature' => !empty($gatewaySignature),
+            ]);
+
+            // Check if cache exists for this order
+            $cacheKey = 'payment_order:' . $gatewayOrderId;
+            $cachedOrder = Cache::get($cacheKey);
+            Log::info('[VerifyService] Cache check', [
+                'cache_key' => $cacheKey,
+                'cache_exists' => $cachedOrder !== null,
+                'cached_android_id' => $cachedOrder['android_id'] ?? null,
+            ]);
+
             // Try to find an existing transaction (webhook may have arrived first)
+            // First try with the android_id from request/auth
             $transaction = PaymentTransaction::where('gateway_order_id', $gatewayOrderId)
                 ->where('android_id', $androidId)
                 ->first();
+
+            // If not found and we have cached data, try with cached android_id
+            if (!$transaction && $cachedOrder && $cachedOrder['android_id'] !== $androidId) {
+                Log::info('[VerifyService] Trying with cached android_id');
+                $transaction = PaymentTransaction::where('gateway_order_id', $gatewayOrderId)
+                    ->where('android_id', $cachedOrder['android_id'])
+                    ->first();
+                if ($transaction) {
+                    $androidId = $cachedOrder['android_id'];
+                }
+            }
+
+            // If still not found, try without android_id filter (order might exist from webhook)
+            if (!$transaction) {
+                $transaction = PaymentTransaction::where('gateway_order_id', $gatewayOrderId)->first();
+                if ($transaction) {
+                    Log::info('[VerifyService] Found transaction without android_id filter', [
+                        'transaction_android_id' => $transaction->android_id,
+                    ]);
+                }
+            }
+
+            Log::info('[VerifyService] Transaction lookup', [
+                'found' => $transaction !== null,
+                'transaction_id' => $transaction?->id,
+                'status' => $transaction?->status,
+            ]);
 
             if ($transaction && $transaction->isProcessed()) {
                 return $this->successResponse([
@@ -158,10 +213,20 @@ class PaymentService
             $gateway = $this->gatewayManager->getActiveGateway();
             $gatewayService = $this->gatewayManager->resolveService($gateway);
 
+            Log::info('[VerifyService] Calling gateway verifyPayment', [
+                'gateway' => $gateway->name,
+                'gateway_order_id' => $gatewayOrderId,
+            ]);
+
             $isVerified = $gatewayService->verifyPayment([
                 'gateway_order_id' => $gatewayOrderId,
                 'gateway_payment_id' => $gatewayPaymentId,
                 'gateway_signature' => $gatewaySignature,
+            ]);
+
+            Log::info('[VerifyService] Gateway verification result', [
+                'is_verified' => $isVerified,
+                'gateway' => $gateway->name,
             ]);
 
             if (!$isVerified) {
@@ -204,6 +269,10 @@ class PaymentService
                 'gateway' => $gatewayName,
             ]);
 
+            Log::info('[VerifyService] SUCCESS - Returning success response', [
+                'transaction_id' => $transaction->id,
+            ]);
+
             return $this->successResponse([
                 'message' => 'Payment verified successfully. Your subscription is being activated.',
                 'data' => [
@@ -212,9 +281,11 @@ class PaymentService
                 ],
             ]);
         } catch (\Exception $e) {
-            Log::error('[Verify] exception', [
+            Log::error('[VerifyService] Exception', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
+                'android_id' => $request->input('android_id'),
+                'gateway_order_id' => $request->input('gateway_order_id'),
             ]);
 
             return $this->errorResponse([], 'Failed to verify payment. Please try again.', 500);
@@ -230,8 +301,17 @@ class PaymentService
         $cacheKey = 'payment_order:' . $gatewayOrderId;
         $cached = Cache::get($cacheKey);
 
+        Log::info('[CreateFromCache] Attempting cache lookup', [
+            'cache_key' => $cacheKey,
+            'cache_driver' => config('cache.default'),
+            'cache_found' => $cached !== null,
+        ]);
+
         if (!$cached) {
-            Log::warning('[CreateFromCache] Cache miss', ['order_id' => $gatewayOrderId]);
+            Log::warning('[CreateFromCache] Cache miss', [
+                'order_id' => $gatewayOrderId,
+                'cache_driver' => config('cache.default'),
+            ]);
             return null;
         }
 

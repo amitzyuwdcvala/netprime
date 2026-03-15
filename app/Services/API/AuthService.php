@@ -3,6 +3,7 @@
 namespace App\Services\API;
 
 use App\Http\Traits\ApiResponses;
+use App\Models\AppConfig;
 use App\Models\User;
 use App\Models\UserSubscription;
 use Illuminate\Support\Facades\DB;
@@ -31,7 +32,8 @@ class AuthService
                 return $this->successResponse([
                     'message' => 'User already registered',
                     'data' => [
-                        'user' => $this->buildUserPayload($user),
+                        'user'   => $this->buildUserPayload($user),
+                        'config' => AppConfig::getDecodedCached(),
                     ],
                 ]);
             }
@@ -49,7 +51,8 @@ class AuthService
             return $this->successResponse([
                 'message' => 'User registered successfully',
                 'data' => [
-                    'user' => $this->buildUserPayload($user),
+                    'user'   => $this->buildUserPayload($user),
+                    'config' => AppConfig::getDecodedCached(),
                 ],
             ], 201);
         } catch (\Exception $e) {

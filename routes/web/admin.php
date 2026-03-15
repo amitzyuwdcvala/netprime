@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\ActiveToggleController;
+use App\Http\Controllers\Admin\ConfigController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GatewayController;
 use App\Http\Controllers\Admin\PaymentController;
@@ -34,3 +35,6 @@ Route::get('settings', [SettingController::class, 'index'])->name('settings.inde
 Route::post('settings/manage', [SettingController::class, 'manage_setting'])->name('manage.setting');
 Route::post('settings/save', [SettingController::class, 'save_setting'])->name('save.setting');
 Route::post('settings/delete', [SettingController::class, 'delete_setting'])->name('delete.setting');
+
+Route::get('config', [ConfigController::class, 'index'])->name('config.index');
+Route::post('config/save', [ConfigController::class, 'save'])->name('config.save');

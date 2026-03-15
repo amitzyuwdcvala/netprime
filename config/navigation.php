@@ -33,6 +33,12 @@ return [
             'icon' => 'fa-money-bill-wave',
             'is_visible' => true,
         ],
+        [
+            'label' => 'Config',
+            'link' => 'admin.config.index',
+            'icon' => 'fa-sliders-h',
+            'is_visible' => true,
+        ],
     ],
 
 ];
