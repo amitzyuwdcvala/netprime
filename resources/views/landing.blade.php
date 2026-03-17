@@ -8,19 +8,19 @@
     <meta data-n-head="ssr" name="format-detection" content="telephone=no">
     <meta data-n-head="ssr" http-equiv="X-UA-Compatible" content="IE=edge">
     <meta data-n-head="ssr" data-hid="twitter:description" name="twitter:description"
-        content="NetPrime covering all kinds of movies and TV dramas around the world, you can search online to watch dramas of American, Japanese, Thai, and various of movies and TV series including action, romance, dramas, horror, comedy, disaster, funny, adventure, thriller, documentaries, variety shows and other latest movies and TV series. Download for more HD movies online">
+        content="FlixyGO covering all kinds of movies and TV dramas around the world, you can search online to watch dramas of American, Japanese, Thai, and various of movies and TV series including action, romance, dramas, horror, comedy, disaster, funny, adventure, thriller, documentaries, variety shows and other latest movies and TV series. Download for more HD movies online">
     <meta data-n-head="ssr" data-hid="twitter:site" name="twitter:site">
     <meta data-n-head="ssr" data-hid="twitter:type" name="twitter:type" content="article">
-    <meta data-n-head="ssr" data-hid="twitter:title" name="twitter:title" content="NetPrime">
-    <meta data-n-head="ssr" data-hid="og:title" property="og:title" content="NetPrime">
+    <meta data-n-head="ssr" data-hid="twitter:title" name="twitter:title" content="FlixyGO">
+    <meta data-n-head="ssr" data-hid="og:title" property="og:title" content="FlixyGO">
     <meta data-n-head="ssr" data-hid="og:description" property="og:description"
-        content="NetPrime covering all kinds of movies and TV dramas around the world, you can search online to watch dramas of American, Japanese, Thai, and various of movies and TV series including action, romance, dramas, horror, comedy, disaster, funny, adventure, thriller, documentaries, variety shows and other latest movies and TV series. Download for more HD movies online">
+        content="FlixyGO covering all kinds of movies and TV dramas around the world, you can search online to watch dramas of American, Japanese, Thai, and various of movies and TV series including action, romance, dramas, horror, comedy, disaster, funny, adventure, thriller, documentaries, variety shows and other latest movies and TV series. Download for more HD movies online">
     <meta property="og:image" content="{{ asset('build/img/ic_launcher.png') }}">
-    <meta data-n-head="ssr" data-hid="og:image:alt" property="og:image:alt" content="NetPrime">
+    <meta data-n-head="ssr" data-hid="og:image:alt" property="og:image:alt" content="FlixyGO">
     <meta data-n-head="ssr" data-hid="og:type" property="og:type" content="website">
     <meta data-n-head="ssr" data-hid="fb:app_id" property="fb:app_id" content="355060249929636">
     <meta data-n-head="ssr" data-hid="description" name="description"
-        content="NetPrime covering all kinds of movies and TV dramas around the world, you can search online to watch dramas of American, Japanese, Thai, and various of movies and TV series including action, romance, dramas, horror, comedy, disaster, funny, adventure, thriller, documentaries, variety shows and other latest movies and TV series. Download for more HD movies online">
+        content="FlixyGO covering all kinds of movies and TV dramas around the world, you can search online to watch dramas of American, Japanese, Thai, and various of movies and TV series including action, romance, dramas, horror, comedy, disaster, funny, adventure, thriller, documentaries, variety shows and other latest movies and TV series. Download for more HD movies online">
     <meta data-n-head="ssr" data-hid="keywords" name="keywords" content="">
     <meta data-n-head="ssr" name="google-site-verification" content="YqZgE3G-hF7a3xB9wXb728dUOR3K-J5lF6BQsJeGJss">
     <!-- Meta Pixel Code -->
@@ -40,7 +40,7 @@ fbq('track', 'PageView');
 src="https://www.facebook.com/tr?id=2680589678972587&ev=PageView&noscript=1"
 /></noscript>
 <!-- End Meta Pixel Code -->
-    <title>NetPrime</title>
+    <title>FlixyGO</title>
     <link data-n-head="ssr" rel="stylesheet" href="{{ asset('build/lib/swiper3/swiper.min.css') }}">
     <script data-n-head="ssr" src="https://static.hbayy.com/plugins/snaptr.js" type="text/javascript"></script>
     <script data-n-head="ssr" src="{{ asset('build/lib/swiper3/swiper.min.js') }}" type="text/javascript"></script>
@@ -79,13 +79,13 @@ src="https://www.facebook.com/tr?id=2680589678972587&ev=PageView&noscript=1"
                     <div class="lheader" data-v-411717e6 data-v-b0a269b2>
                         <div class="lheader-logo" data-v-411717e6>
                             <a href="/" data-v-411717e6>
-                                <div class="lheader-logo__i" style="background-image:url({{ asset('build/img/ic_launcher.png') }});"
+                                <div class="lheader-logo__i" style="background-image:url({{ asset('build/img/logo.png') }});"
                                     data-v-411717e6></div>
                             </a>
                         </div>
                         <div class="lheader-info" data-v-411717e6>
-                            <div class="lheader-title" data-v-411717e6>NetPrime</div>
-                            <div class="lheader-subtitle" data-v-411717e6>Movie &amp; Stream</div>
+                            {{-- <div class="lheader-title" data-v-411717e6>FlixyGO</div> --}}
+                            {{-- <div class="lheader-subtitle" data-v-411717e6>Movie &amp; Stream</div> --}}
                         </div>
                         <div class="lheader-label" data-v-411717e6>
                             <div class="lheader-number" data-v-411717e6>100,000+</div>
@@ -98,15 +98,15 @@ src="https://www.facebook.com/tr?id=2680589678972587&ev=PageView&noscript=1"
                                 style="background-image:url({{ asset('build/img/bg@2x.webp') }});"
                                 data-v-ec5fb5a4></div>
                             <div class="lhome-header" data-v-ec5fb5a4>
-                                <div class="lhome-title" data-v-ec5fb5a4>NetPrime</div>
+                                {{-- <div class="lhome-title" data-v-ec5fb5a4>FlixyGO</div>
                                 <div class="lhome-subtitle" data-v-ec5fb5a4>
                                     <div data-v-ec5fb5a4>Your private cinema</div>
-                                </div>
+                                </div> --}}
                                 <div data-v-ec5fb5a4>
                                     <div class="lhome-bg1"
                                         style="background-image:url({{ asset('build/img/banner_bg@2x.png') }});"
                                         data-v-ec5fb5a4>
-                                        <div onclick="window.open('{{ url('build/apk/NetPrime_1_8.apk') }}', '_blank')" class="lhome-bgdownload pointer" data-v-ec5fb5a4>
+                                        <div onclick="window.open('{{ url('build/apk/FlixyGO_1_0.apk') }}', '_blank')" class="lhome-bgdownload pointer" data-v-ec5fb5a4>
                                         </div>
                                     </div>
                                 </div>
@@ -119,7 +119,7 @@ src="https://www.facebook.com/tr?id=2680589678972587&ev=PageView&noscript=1"
                                                 the latest download link
                                             </div>
                                             <div class="un-download-tips-actions" data-v-7b0a9ad1><a
-                                                    href="https://whatsapp.com/channel/0029Vb5hnc0DZ4Lf1hk9ax1q"
+                                                    href="https://whatsapp.com/channel/0029VbCsnlE4inomUlOyV82B"
                                                     target="_blank" class="un-download-tips-block whatsapp"
                                                     data-v-7b0a9ad1><span data-v-7b0a9ad1><svg width="1em"
                                                             height="1em" viewBox="0 0 18 18" version="1.1"
@@ -138,7 +138,7 @@ src="https://www.facebook.com/tr?id=2680589678972587&ev=PageView&noscript=1"
                                                             </g>
                                                         </svg></span>
                                                     WhatsApp
-                                                </a> <a href="https://t.me/NetPrime_Official_App" target="_blank"
+                                                </a> <a href="https://t.me/FlixyGoo" target="_blank"
                                                     class="un-download-tips-block telegram" data-v-7b0a9ad1><span
                                                         data-v-7b0a9ad1><svg width="1em" height="1em"
                                                             viewBox="0 0 18 18" version="1.1"
@@ -198,25 +198,25 @@ src="https://www.facebook.com/tr?id=2680589678972587&ev=PageView&noscript=1"
                             <div class="qalanding" data-v-8e45227c data-v-b0a269b2>
                                 <div class="qalanding-item" data-v-8e45227c>
                                     <p class="qalanding-title" data-v-8e45227c>
-                                        1.How to download NetPrime app on Google Play?
+                                        1.How to download FlixyGO app on Google Play?
                                     </p>
                                     <div class="qalanding-content" data-v-8e45227c>
-                                        Due to the policy of Google,NetPrime don't publish in Google Play. NetPrime is safe
-                                        and you can download NetPrime on Our Official Website.
+                                        Due to the policy of Google,FlixyGO don't publish in Google Play. FlixyGO is safe
+                                        and you can download FlixyGO on Our Official Website.
                                     </div>
                                 </div>
                                 <div class="qalanding-item" data-v-8e45227c>
                                     <p class="qalanding-title" data-v-8e45227c>
-                                        2.How to Install NetPrime on iPhone, iPad or PC?
+                                        2.How to Install FlixyGO on iPhone, iPad or PC?
                                     </p>
                                     <div class="qalanding-content" data-v-8e45227c>
-                                        NetPrime do not publish iOS or Windows version.
+                                        FlixyGO do not publish iOS or Windows version.
                                     </div>
                                 </div>
                                 <div class="qalanding-item" data-v-8e45227c>
-                                    <p class="qalanding-title" data-v-8e45227c>3.What is NetPrime?</p>
+                                    <p class="qalanding-title" data-v-8e45227c>3.What is FlixyGO?</p>
                                     <div class="qalanding-content" data-v-8e45227c>
-                                        NetPrime is quite possibly, the most popular Indian movie streaming app for
+                                        FlixyGO is quite possibly, the most popular Indian movie streaming app for
                                         Android. It is used by millions of users in India to stream the latest Trending
                                         Movies, Hot Music, Videos and TV shows - usually to an Android device, but it
                                         also works on other
@@ -236,11 +236,11 @@ src="https://www.facebook.com/tr?id=2680589678972587&ev=PageView&noscript=1"
                                     </a>
                                 </div>
                                 <div class="lfooter-info" data-v-4ae7e02b>
-                                    <div class="lfooter-title" data-v-4ae7e02b>Get start with NetPrime</div>
+                                    <div class="lfooter-title" data-v-4ae7e02b>Get start with FlixyGO</div>
                                     <div class="lfooter-subtitle" data-v-4ae7e02b>Movie &amp; Stream</div>
                                 </div>
                                 <div class="lfooter-label" data-v-4ae7e02b>
-                                    <div onclick="window.open('{{ url('build/apk/NetPrime_1_8.apk') }}', '_blank')" id="download_Fixed" class="lfooter-download pointer"
+                                    <div onclick="window.open('{{ url('build/apk/FlixyGO_1_0.apk') }}', '_blank')" id="download_Fixed" class="lfooter-download pointer"
                                         style="background-image:url({{ asset('build/img/btn_download@2x.png') }});"
                                         data-v-4ae7e02b></div>
                                 </div>
