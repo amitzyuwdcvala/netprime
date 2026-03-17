@@ -11,7 +11,7 @@ Route::get('/login', function () {
     return redirect()->route('admin.login');
 })->name('login');
 
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('modi')->name('admin.')->group(function () {
     Route::middleware('guest:admin')->group(function () {
         Route::get('login', [\App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login');
         Route::post('login', [\App\Http\Controllers\Auth\LoginController::class, 'login']);
@@ -34,4 +34,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['auth:admin', 'prevent_back_history'])->group(function () {
         require __DIR__ . '/web/admin.php';
     });
+});
+
+Route::fallback(function () {
+    return redirect()->route('home');
 });
