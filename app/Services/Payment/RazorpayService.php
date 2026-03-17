@@ -25,7 +25,7 @@ class RazorpayService implements PaymentGatewayInterface
         $this->gateway = $gateway;
         $raw = $gateway->credentials;
         $this->credentials = is_array($raw) ? $raw : json_decode($raw, true);
-        
+
         if (!$this->credentials || !is_array($this->credentials)) {
             throw new \Exception('Invalid payment gateway credentials');
         }
@@ -43,14 +43,14 @@ class RazorpayService implements PaymentGatewayInterface
         try {
             // Attach helpful metadata to Razorpay order. We also include a static
             // app identifier so the same Razorpay account can distinguish
-            // between different apps (e.g. Netprime vs others).
+            // between different apps (e.g. FlixyGO vs others).
             $notes = $metadata;
-            $notes['app_info'] = 'netprime';
+            $notes['app_info'] = 'flixygo';
 
             $orderData = [
                 'receipt' => $metadata['transaction_id'] ?? uniqid('txn_'),
                 'amount'  => (int) ($amount * 100),
-                'currency'=> $currency,
+                'currency' => $currency,
                 'notes'   => $notes,
             ];
 
@@ -155,4 +155,3 @@ class RazorpayService implements PaymentGatewayInterface
         return $this->credentials ?? [];
     }
 }
-

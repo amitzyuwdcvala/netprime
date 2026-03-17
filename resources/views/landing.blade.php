@@ -24,23 +24,26 @@
     <meta data-n-head="ssr" data-hid="keywords" name="keywords" content="">
     <meta data-n-head="ssr" name="google-site-verification" content="YqZgE3G-hF7a3xB9wXb728dUOR3K-J5lF6BQsJeGJss">
     <!-- Meta Pixel Code -->
-<script>
-!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '2680589678972587');
-fbq('track', 'PageView');
-</script>
-<noscript><img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=2680589678972587&ev=PageView&noscript=1"
-/></noscript>
-<!-- End Meta Pixel Code -->
+    <script>
+        !function (f, b, e, v, n, t, s) {
+            if (f.fbq) return; n = f.fbq = function () {
+                n.callMethod ?
+                n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+            };
+            if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+            n.queue = []; t = b.createElement(e); t.async = !0;
+            t.src = v; s = b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t, s)
+        }(window, document, 'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '2680589678972587');
+        fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+            src="https://www.facebook.com/tr?id=2680589678972587&ev=PageView&noscript=1" /></noscript>
+    <!-- End Meta Pixel Code -->
     <title>FlixyGO</title>
+    <link rel="icon" href="{{ asset('images/ic_launcher.png') }}">
     <link data-n-head="ssr" rel="stylesheet" href="{{ asset('build/lib/swiper3/swiper.min.css') }}">
     <script data-n-head="ssr" src="https://static.hbayy.com/plugins/snaptr.js" type="text/javascript"></script>
     <script data-n-head="ssr" src="{{ asset('build/lib/swiper3/swiper.min.js') }}" type="text/javascript"></script>
@@ -58,18 +61,19 @@ src="https://www.facebook.com/tr?id=2680589678972587&ev=PageView&noscript=1"
     <link rel="stylesheet" href="{{ asset('build/js/35695f63dd169408e559.css') }}">
     <link rel="stylesheet" href="{{ asset('build/js/f4ed8010cddb52c6e367.css') }}">
     <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-NZ9NT28PQV"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NZ9NT28PQV"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
 
-  gtag('config', 'G-NZ9NT28PQV');
-</script>
+        gtag('config', 'G-NZ9NT28PQV');
+    </script>
 </head>
 
 <body data-version="1.9.6-01">
-    <script data-n-head="ssr" src="{{ asset('build/js/flexible.js') }}" data-pbody="true" type="text/javascript"></script>
+    <script data-n-head="ssr" src="{{ asset('build/js/flexible.js') }}" data-pbody="true"
+        type="text/javascript"></script>
     <div data-server-rendered="true" id="__nuxt">
         <!---->
         <div id="__layout">
@@ -79,8 +83,9 @@ src="https://www.facebook.com/tr?id=2680589678972587&ev=PageView&noscript=1"
                     <div class="lheader" data-v-411717e6 data-v-b0a269b2>
                         <div class="lheader-logo" data-v-411717e6>
                             <a href="/" data-v-411717e6>
-                                <div class="lheader-logo__i" style="background-image:url({{ asset('build/img/logo.png') }});"
-                                    data-v-411717e6></div>
+                                <div class="lheader-logo__i"
+                                    style="background-image:url({{ asset('build/img/logo.png') }});" data-v-411717e6>
+                                </div>
                             </a>
                         </div>
                         <div class="lheader-info" data-v-411717e6>
@@ -94,8 +99,7 @@ src="https://www.facebook.com/tr?id=2680589678972587&ev=PageView&noscript=1"
                     </div>
                     <div class="landing-body" data-v-b0a269b2>
                         <div class="lhome landing-home" data-v-ec5fb5a4 data-v-b0a269b2 data-v-b0a269b2>
-                            <div class="lhome-bg"
-                                style="background-image:url({{ asset('build/img/bg@2x.webp') }});"
+                            <div class="lhome-bg" style="background-image:url({{ asset('build/img/bg@2x.webp') }});"
                                 data-v-ec5fb5a4></div>
                             <div class="lhome-header" data-v-ec5fb5a4>
                                 {{-- <div class="lhome-title" data-v-ec5fb5a4>FlixyGO</div>
@@ -106,7 +110,8 @@ src="https://www.facebook.com/tr?id=2680589678972587&ev=PageView&noscript=1"
                                     <div class="lhome-bg1"
                                         style="background-image:url({{ asset('build/img/banner_bg@2x.png') }});"
                                         data-v-ec5fb5a4>
-                                        <div onclick="window.open('{{ url('build/apk/FlixyGO_1_0.apk') }}', '_blank')" class="lhome-bgdownload pointer" data-v-ec5fb5a4>
+                                        <div onclick="window.open('{{ url('build/apk/FlixyGO_1_0.apk') }}', '_blank')"
+                                            class="lhome-bgdownload pointer" data-v-ec5fb5a4>
                                         </div>
                                     </div>
                                 </div>
@@ -121,8 +126,8 @@ src="https://www.facebook.com/tr?id=2680589678972587&ev=PageView&noscript=1"
                                             <div class="un-download-tips-actions" data-v-7b0a9ad1><a
                                                     href="https://whatsapp.com/channel/0029VbCsnlE4inomUlOyV82B"
                                                     target="_blank" class="un-download-tips-block whatsapp"
-                                                    data-v-7b0a9ad1><span data-v-7b0a9ad1><svg width="1em"
-                                                            height="1em" viewBox="0 0 18 18" version="1.1"
+                                                    data-v-7b0a9ad1><span data-v-7b0a9ad1><svg width="1em" height="1em"
+                                                            viewBox="0 0 18 18" version="1.1"
                                                             xmlns="http://www.w3.org/2000/svg"
                                                             xmlns:xlink="http://www.w3.org/1999/xlink" data-v-7b0a9ad1>
                                                             <g stroke="none" stroke-width="1" fill="none"
@@ -163,124 +168,125 @@ src="https://www.facebook.com/tr?id=2680589678972587&ev=PageView&noscript=1"
                                     </div>
                                 </div>
                             </div>
-                            </div>
-                            <div class="cover" style="display:none;" data-v-7afd23f8 data-v-ec5fb5a4>
-                                <div class="container" data-v-7afd23f8>
-                                    <div class="open" data-v-7afd23f8>
-                                        <div class="open-top" data-v-7afd23f8>
-                                            Click「
-                                            <svg t="1710466749007" viewBox="0 0 1126 1024" version="1.1"
-                                                xmlns="http://www.w3.org/2000/svg" p-id="2385" class="icon-btn"
-                                                data-v-7afd23f8>
-                                                <path
-                                                    d="M563.2 409.6l204.8 204.8h-153.6v409.6h-102.4v-409.6H358.4l204.8-204.8z m460.8-409.6a102.4 102.4 0 0 1 102.4 102.4v819.2a102.4 102.4 0 0 1-102.4 102.4h-256a51.2 51.2 0 0 1 0-102.4h256V256H102.4v665.6h256a51.2 51.2 0 0 1 0 102.4H102.4a102.4 102.4 0 0 1-102.4-102.4V102.4a102.4 102.4 0 0 1 102.4-102.4h921.6z"
-                                                    p-id="2386" fill="#ffffff" data-v-7afd23f8></path>
-                                            </svg> 」button to open the browser for safe downloading
-                                        </div>
-                                        <div class="open-buttom" data-v-7afd23f8>
-                                            सुरक्षित डाउनलोडिंग के लिए ब्राउज़र खोलने के लिए
-                                            <svg t="1710466749007" viewBox="0 0 1126 1024" version="1.1"
-                                                xmlns="http://www.w3.org/2000/svg" p-id="2385" class="icon-btn"
-                                                data-v-7afd23f8>
-                                                <path
-                                                    d="M563.2 409.6l204.8 204.8h-153.6v409.6h-102.4v-409.6H358.4l204.8-204.8z m460.8-409.6a102.4 102.4 0 0 1 102.4 102.4v819.2a102.4 102.4 0 0 1-102.4 102.4h-256a51.2 51.2 0 0 1 0-102.4h256V256H102.4v665.6h256a51.2 51.2 0 0 1 0 102.4H102.4a102.4 102.4 0 0 1-102.4-102.4V102.4a102.4 102.4 0 0 1 102.4-102.4h921.6z"
-                                                    p-id="2386" fill="#ffffff" data-v-7afd23f8></path>
-                                            </svg> बटन पर क्लिक करें
-                                        </div>
-                                    </div>
-                                    <div class="open-close" data-v-7afd23f8><span class="open-close-text"
-                                            data-v-7afd23f8>I GOT IT</span></div>
-                                </div>
-                            </div>
                         </div>
-                        <div class="landing-faq" data-v-b0a269b2>
-                            <p class="landing-faqtitle" data-v-b0a269b2><span data-v-b0a269b2>FAQ</span></p>
-                            <div class="qalanding" data-v-8e45227c data-v-b0a269b2>
-                                <div class="qalanding-item" data-v-8e45227c>
-                                    <p class="qalanding-title" data-v-8e45227c>
-                                        1.How to download FlixyGO app on Google Play?
-                                    </p>
-                                    <div class="qalanding-content" data-v-8e45227c>
-                                        Due to the policy of Google,FlixyGO don't publish in Google Play. FlixyGO is safe
-                                        and you can download FlixyGO on Our Official Website.
+                        <div class="cover" style="display:none;" data-v-7afd23f8 data-v-ec5fb5a4>
+                            <div class="container" data-v-7afd23f8>
+                                <div class="open" data-v-7afd23f8>
+                                    <div class="open-top" data-v-7afd23f8>
+                                        Click「
+                                        <svg t="1710466749007" viewBox="0 0 1126 1024" version="1.1"
+                                            xmlns="http://www.w3.org/2000/svg" p-id="2385" class="icon-btn"
+                                            data-v-7afd23f8>
+                                            <path
+                                                d="M563.2 409.6l204.8 204.8h-153.6v409.6h-102.4v-409.6H358.4l204.8-204.8z m460.8-409.6a102.4 102.4 0 0 1 102.4 102.4v819.2a102.4 102.4 0 0 1-102.4 102.4h-256a51.2 51.2 0 0 1 0-102.4h256V256H102.4v665.6h256a51.2 51.2 0 0 1 0 102.4H102.4a102.4 102.4 0 0 1-102.4-102.4V102.4a102.4 102.4 0 0 1 102.4-102.4h921.6z"
+                                                p-id="2386" fill="#ffffff" data-v-7afd23f8></path>
+                                        </svg> 」button to open the browser for safe downloading
+                                    </div>
+                                    <div class="open-buttom" data-v-7afd23f8>
+                                        सुरक्षित डाउनलोडिंग के लिए ब्राउज़र खोलने के लिए
+                                        <svg t="1710466749007" viewBox="0 0 1126 1024" version="1.1"
+                                            xmlns="http://www.w3.org/2000/svg" p-id="2385" class="icon-btn"
+                                            data-v-7afd23f8>
+                                            <path
+                                                d="M563.2 409.6l204.8 204.8h-153.6v409.6h-102.4v-409.6H358.4l204.8-204.8z m460.8-409.6a102.4 102.4 0 0 1 102.4 102.4v819.2a102.4 102.4 0 0 1-102.4 102.4h-256a51.2 51.2 0 0 1 0-102.4h256V256H102.4v665.6h256a51.2 51.2 0 0 1 0 102.4H102.4a102.4 102.4 0 0 1-102.4-102.4V102.4a102.4 102.4 0 0 1 102.4-102.4h921.6z"
+                                                p-id="2386" fill="#ffffff" data-v-7afd23f8></path>
+                                        </svg> बटन पर क्लिक करें
                                     </div>
                                 </div>
-                                <div class="qalanding-item" data-v-8e45227c>
-                                    <p class="qalanding-title" data-v-8e45227c>
-                                        2.How to Install FlixyGO on iPhone, iPad or PC?
-                                    </p>
-                                    <div class="qalanding-content" data-v-8e45227c>
-                                        FlixyGO do not publish iOS or Windows version.
-                                    </div>
-                                </div>
-                                <div class="qalanding-item" data-v-8e45227c>
-                                    <p class="qalanding-title" data-v-8e45227c>3.What is FlixyGO?</p>
-                                    <div class="qalanding-content" data-v-8e45227c>
-                                        FlixyGO is quite possibly, the most popular Indian movie streaming app for
-                                        Android. It is used by millions of users in India to stream the latest Trending
-                                        Movies, Hot Music, Videos and TV shows - usually to an Android device, but it
-                                        also works on other
-                                        platforms.
-                                    </div>
-                                </div>
+                                <div class="open-close" data-v-7afd23f8><span class="open-close-text" data-v-7afd23f8>I
+                                        GOT IT</span></div>
                             </div>
                         </div>
                     </div>
-                    <div class="landing-footer" data-v-b0a269b2>
-                        <div class="lfooter-fixed" data-v-4ae7e02b data-v-b0a269b2>
-                            <div class="lfooter" data-v-4ae7e02b>
-                                <div class="lfooter-logo" data-v-4ae7e02b>
-                                    <a href="/" data-v-4ae7e02b>
-                                        <div class="lfooter-logo__i" style="background-image:url({{ asset('build/img/ic_launcher.png') }});"
-                                            data-v-4ae7e02b></div>
-                                    </a>
-                                </div>
-                                <div class="lfooter-info" data-v-4ae7e02b>
-                                    <div class="lfooter-title" data-v-4ae7e02b>Get start with FlixyGO</div>
-                                    <div class="lfooter-subtitle" data-v-4ae7e02b>Movie &amp; Stream</div>
-                                </div>
-                                <div class="lfooter-label" data-v-4ae7e02b>
-                                    <div onclick="window.open('{{ url('build/apk/FlixyGO_1_0.apk') }}', '_blank')" id="download_Fixed" class="lfooter-download pointer"
-                                        style="background-image:url({{ asset('build/img/btn_download@2x.png') }});"
-                                        data-v-4ae7e02b></div>
+                    <div class="landing-faq" data-v-b0a269b2>
+                        <p class="landing-faqtitle" data-v-b0a269b2><span data-v-b0a269b2>FAQ</span></p>
+                        <div class="qalanding" data-v-8e45227c data-v-b0a269b2>
+                            <div class="qalanding-item" data-v-8e45227c>
+                                <p class="qalanding-title" data-v-8e45227c>
+                                    1.How to download FlixyGO app on Google Play?
+                                </p>
+                                <div class="qalanding-content" data-v-8e45227c>
+                                    Due to the policy of Google,FlixyGO don't publish in Google Play. FlixyGO is safe
+                                    and you can download FlixyGO on Our Official Website.
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="cover" style="display:none;" data-v-7afd23f8 data-v-b0a269b2>
-                        <div class="container" data-v-7afd23f8>
-                            <div class="open" data-v-7afd23f8>
-                                <div class="open-top" data-v-7afd23f8>
-                                    Click「
-                                    <svg t="1710466749007" viewBox="0 0 1126 1024" version="1.1"
-                                        xmlns="http://www.w3.org/2000/svg" p-id="2385" class="icon-btn"
-                                        data-v-7afd23f8>
-                                        <path
-                                            d="M563.2 409.6l204.8 204.8h-153.6v409.6h-102.4v-409.6H358.4l204.8-204.8z m460.8-409.6a102.4 102.4 0 0 1 102.4 102.4v819.2a102.4 102.4 0 0 1-102.4 102.4h-256a51.2 51.2 0 0 1 0-102.4h256V256H102.4v665.6h256a51.2 51.2 0 0 1 0 102.4H102.4a102.4 102.4 0 0 1-102.4-102.4V102.4a102.4 102.4 0 0 1 102.4-102.4h921.6z"
-                                            p-id="2386" fill="#ffffff" data-v-7afd23f8></path>
-                                    </svg> 」button to open the browser for safe downloading
-                                </div>
-                                <div class="open-buttom" data-v-7afd23f8>
-                                    सुरक्षित डाउनलोडिंग के लिए ब्राउज़र खोलने के लिए
-                                    <svg t="1710466749007" viewBox="0 0 1126 1024" version="1.1"
-                                        xmlns="http://www.w3.org/2000/svg" p-id="2385" class="icon-btn"
-                                        data-v-7afd23f8>
-                                        <path
-                                            d="M563.2 409.6l204.8 204.8h-153.6v409.6h-102.4v-409.6H358.4l204.8-204.8z m460.8-409.6a102.4 102.4 0 0 1 102.4 102.4v819.2a102.4 102.4 0 0 1-102.4 102.4h-256a51.2 51.2 0 0 1 0-102.4h256V256H102.4v665.6h256a51.2 51.2 0 0 1 0 102.4H102.4a102.4 102.4 0 0 1-102.4-102.4V102.4a102.4 102.4 0 0 1 102.4-102.4h921.6z"
-                                            p-id="2386" fill="#ffffff" data-v-7afd23f8></path>
-                                    </svg> बटन पर क्लिक करें
+                            <div class="qalanding-item" data-v-8e45227c>
+                                <p class="qalanding-title" data-v-8e45227c>
+                                    2.How to Install FlixyGO on iPhone, iPad or PC?
+                                </p>
+                                <div class="qalanding-content" data-v-8e45227c>
+                                    FlixyGO do not publish iOS or Windows version.
                                 </div>
                             </div>
-                            <div class="open-close" data-v-7afd23f8><span class="open-close-text" data-v-7afd23f8>I
-                                    GOT
-                                    IT</span></div>
+                            <div class="qalanding-item" data-v-8e45227c>
+                                <p class="qalanding-title" data-v-8e45227c>3.What is FlixyGO?</p>
+                                <div class="qalanding-content" data-v-8e45227c>
+                                    FlixyGO is quite possibly, the most popular Indian movie streaming app for
+                                    Android. It is used by millions of users in India to stream the latest Trending
+                                    Movies, Hot Music, Videos and TV shows - usually to an Android device, but it
+                                    also works on other
+                                    platforms.
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div></div>
+                <div class="landing-footer" data-v-b0a269b2>
+                    <div class="lfooter-fixed" data-v-4ae7e02b data-v-b0a269b2>
+                        <div class="lfooter" data-v-4ae7e02b>
+                            <div class="lfooter-logo" data-v-4ae7e02b>
+                                <a href="/" data-v-4ae7e02b>
+                                    <div class="lfooter-logo__i"
+                                        style="background-image:url({{ asset('build/img/ic_launcher.png') }});"
+                                        data-v-4ae7e02b></div>
+                                </a>
+                            </div>
+                            <div class="lfooter-info" data-v-4ae7e02b>
+                                <div class="lfooter-title" data-v-4ae7e02b>Get start with FlixyGO</div>
+                                <div class="lfooter-subtitle" data-v-4ae7e02b>Movie &amp; Stream</div>
+                            </div>
+                            <div class="lfooter-label" data-v-4ae7e02b>
+                                <div onclick="window.open('{{ url('build/apk/FlixyGO_1_0.apk') }}', '_blank')"
+                                    id="download_Fixed" class="lfooter-download pointer"
+                                    style="background-image:url({{ asset('build/img/btn_download@2x.png') }});"
+                                    data-v-4ae7e02b></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="cover" style="display:none;" data-v-7afd23f8 data-v-b0a269b2>
+                    <div class="container" data-v-7afd23f8>
+                        <div class="open" data-v-7afd23f8>
+                            <div class="open-top" data-v-7afd23f8>
+                                Click「
+                                <svg t="1710466749007" viewBox="0 0 1126 1024" version="1.1"
+                                    xmlns="http://www.w3.org/2000/svg" p-id="2385" class="icon-btn" data-v-7afd23f8>
+                                    <path
+                                        d="M563.2 409.6l204.8 204.8h-153.6v409.6h-102.4v-409.6H358.4l204.8-204.8z m460.8-409.6a102.4 102.4 0 0 1 102.4 102.4v819.2a102.4 102.4 0 0 1-102.4 102.4h-256a51.2 51.2 0 0 1 0-102.4h256V256H102.4v665.6h256a51.2 51.2 0 0 1 0 102.4H102.4a102.4 102.4 0 0 1-102.4-102.4V102.4a102.4 102.4 0 0 1 102.4-102.4h921.6z"
+                                        p-id="2386" fill="#ffffff" data-v-7afd23f8></path>
+                                </svg> 」button to open the browser for safe downloading
+                            </div>
+                            <div class="open-buttom" data-v-7afd23f8>
+                                सुरक्षित डाउनलोडिंग के लिए ब्राउज़र खोलने के लिए
+                                <svg t="1710466749007" viewBox="0 0 1126 1024" version="1.1"
+                                    xmlns="http://www.w3.org/2000/svg" p-id="2385" class="icon-btn" data-v-7afd23f8>
+                                    <path
+                                        d="M563.2 409.6l204.8 204.8h-153.6v409.6h-102.4v-409.6H358.4l204.8-204.8z m460.8-409.6a102.4 102.4 0 0 1 102.4 102.4v819.2a102.4 102.4 0 0 1-102.4 102.4h-256a51.2 51.2 0 0 1 0-102.4h256V256H102.4v665.6h256a51.2 51.2 0 0 1 0 102.4H102.4a102.4 102.4 0 0 1-102.4-102.4V102.4a102.4 102.4 0 0 1 102.4-102.4h921.6z"
+                                        p-id="2386" fill="#ffffff" data-v-7afd23f8></path>
+                                </svg> बटन पर क्लिक करें
+                            </div>
+                        </div>
+                        <div class="open-close" data-v-7afd23f8><span class="open-close-text" data-v-7afd23f8>I
+                                GOT
+                                IT</span></div>
+                    </div>
+                </div>
             </div>
+            <div></div>
         </div>
+    </div>
     </div>
     <script src="{{ asset('build/js/rocket-loader.min.js') }}" defer></script>
 </body>
+
 </html>
