@@ -4,7 +4,7 @@
             <a href="{{ route('admin.dashboard') }}">FlixyGO</a>
         </div>
         <div class="sidebar-brand sidebar-brand-sm">
-            <a href="{{ route('admin.dashboard') }}">FG</a>
+            <a href="{{ route('admin.dashboard') }}">F</a>
         </div>
         <ul class="sidebar-menu">
             @foreach (config('navigation.sidebar', []) as $attribute)
