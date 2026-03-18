@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Razorpay Checkout – NetPrime</title>
+    <title>Test Razorpay Checkout – FlixyGO</title>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
         body {
