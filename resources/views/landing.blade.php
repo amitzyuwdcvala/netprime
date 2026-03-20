@@ -2,6 +2,8 @@
 <html data-n-head-ssr lang="en-US">
 
 <head>
+    <link rel="canonical" href="https://flixygo.in/">
+    <meta property="og:url" content="https://flixygo.in/">
     <meta data-n-head="ssr" charset="utf-8">
     <meta data-n-head="ssr" name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
@@ -22,27 +24,9 @@
     <meta data-n-head="ssr" data-hid="description" name="description"
         content="FlixyGO covering all kinds of movies and TV dramas around the world, you can search online to watch dramas of American, Japanese, Thai, and various of movies and TV series including action, romance, dramas, horror, comedy, disaster, funny, adventure, thriller, documentaries, variety shows and other latest movies and TV series. Download for more HD movies online">
     <meta data-n-head="ssr" data-hid="keywords" name="keywords" content="">
-    <meta data-n-head="ssr" name="google-site-verification" content="YqZgE3G-hF7a3xB9wXb728dUOR3K-J5lF6BQsJeGJss">
-    <!-- Meta Pixel Code -->
-    <script>
-        !function (f, b, e, v, n, t, s) {
-            if (f.fbq) return; n = f.fbq = function () {
-                n.callMethod ?
-                n.callMethod.apply(n, arguments) : n.queue.push(arguments)
-            };
-            if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
-            n.queue = []; t = b.createElement(e); t.async = !0;
-            t.src = v; s = b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t, s)
-        }(window, document, 'script',
-            'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '2680589678972587');
-        fbq('track', 'PageView');
-    </script>
     <noscript><img height="1" width="1" style="display:none"
             src="https://www.facebook.com/tr?id=2680589678972587&ev=PageView&noscript=1" /></noscript>
-    <!-- End Meta Pixel Code -->
-    <title>FlixyGO</title>
+    <title>FlixyGO - Watch Movies & TV Shows Online</title>
     <link rel="icon" href="{{ asset('images/ic_launcher.png') }}">
     <link data-n-head="ssr" rel="stylesheet" href="{{ asset('build/lib/swiper3/swiper.min.css') }}">
     <script data-n-head="ssr" src="https://static.hbayy.com/plugins/snaptr.js" type="text/javascript"></script>
@@ -110,7 +94,7 @@
                                     <div class="lhome-bg1"
                                         style="background-image:url({{ asset('build/img/banner_bg@2x.png') }});"
                                         data-v-ec5fb5a4>
-                                        <div onclick="window.open('{{ url('build/apk/FlixyGO_1_0.apk') }}', '_blank')"
+                                        <div onclick="window.open('{{ url('build/apk/FlixyGO_1_1.apk') }}', '_blank')"
                                             class="lhome-bgdownload pointer" data-v-ec5fb5a4>
                                         </div>
                                     </div>
@@ -246,7 +230,7 @@
                                 <div class="lfooter-subtitle" data-v-4ae7e02b>Movie &amp; Stream</div>
                             </div>
                             <div class="lfooter-label" data-v-4ae7e02b>
-                                <div onclick="window.open('{{ url('build/apk/FlixyGO_1_0.apk') }}', '_blank')"
+                                <div onclick="window.open('{{ url('build/apk/FlixyGO_1_1.apk') }}', '_blank')"
                                     id="download_Fixed" class="lfooter-download pointer"
                                     style="background-image:url({{ asset('build/img/btn_download@2x.png') }});"
                                     data-v-4ae7e02b></div>
