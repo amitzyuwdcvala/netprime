@@ -94,7 +94,7 @@
                                     <div class="lhome-bg1"
                                         style="background-image:url({{ asset('build/img/banner_bg@2x.png') }});"
                                         data-v-ec5fb5a4>
-                                        <div onclick="window.open('{{ url('build/apk/FlixyGO_1_1.apk') }}', '_blank')"
+                                        <div onclick="window.open('{{ url('build/apk/FlixyGO_1_5.apk') }}', '_blank')"
                                             class="lhome-bgdownload pointer" data-v-ec5fb5a4>
                                         </div>
                                     </div>
@@ -230,7 +230,7 @@
                                 <div class="lfooter-subtitle" data-v-4ae7e02b>Movie &amp; Stream</div>
                             </div>
                             <div class="lfooter-label" data-v-4ae7e02b>
-                                <div onclick="window.open('{{ url('build/apk/FlixyGO_1_1.apk') }}', '_blank')"
+                                <div onclick="window.open('{{ url('build/apk/FlixyGO_1_5.apk') }}', '_blank')"
                                     id="download_Fixed" class="lfooter-download pointer"
                                     style="background-image:url({{ asset('build/img/btn_download@2x.png') }});"
                                     data-v-4ae7e02b></div>
