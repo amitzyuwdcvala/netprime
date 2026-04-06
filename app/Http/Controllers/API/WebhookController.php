@@ -148,6 +148,11 @@ class WebhookController extends Controller
                 $transaction->update($update);
             }
 
+            if ($isSuccess) {
+                $transaction->refresh();
+                $this->paymentService->processSuccessfulPayment($transaction);
+            }
+
             ProcessPaymentWebhook::dispatch(
                 $gatewayName,
                 $orderId,

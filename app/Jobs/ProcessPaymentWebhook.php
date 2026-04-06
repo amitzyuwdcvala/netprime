@@ -7,18 +7,15 @@ use App\Models\PaymentTransaction;
 use App\Services\Admin\DashboardService;
 use App\Services\API\PaymentService;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class ProcessPaymentWebhook implements ShouldQueue, ShouldBeUnique
+class ProcessPaymentWebhook implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    public int $uniqueFor = 300;
 
     public function __construct(
         public string $gatewayName,
@@ -27,14 +24,6 @@ class ProcessPaymentWebhook implements ShouldQueue, ShouldBeUnique
         public string $status,
         public ?string $errorMessage = null,
     ) {}
-
-    /**
-     * Unique id so the same webhook (order_id + payment_id) is not processed twice.
-     */
-    public function uniqueId(): string
-    {
-        return 'payment_webhook:' . $this->gatewayName . ':' . ($this->orderId ?? '') . ':' . ($this->paymentId ?? '');
-    }
 
     public function handle(PaymentService $paymentService): void
     {

@@ -138,8 +138,9 @@ class PaymentService
     /**
      * Verify payment (client-initiated after gateway SDK callback).
      *
-     * Creates the transaction DB row if it doesn't exist yet, then marks it
-     * as pending_webhook. The webhook job finalises to success.
+     * Creates the transaction row if needed, verifies with the gateway, then
+     * activates VIP synchronously. The queued job remains for dashboard cache
+     * and idempotent replay with webhooks.
      */
     public function verify_payment_service($request)
     {
@@ -255,6 +256,9 @@ class PaymentService
                 'status' => PaymentStatus::PENDING_WEBHOOK,
             ]);
 
+            $transaction->refresh();
+            $activated = $this->processSuccessfulPayment($transaction);
+
             $gatewayName = strtolower($gateway->name ?? '');
             ProcessPaymentWebhook::dispatch(
                 $gatewayName,
@@ -267,17 +271,23 @@ class PaymentService
                 'order_id' => $gatewayOrderId,
                 'transaction_id' => $transaction->id,
                 'gateway' => $gatewayName,
+                'activated_sync' => $activated,
             ]);
 
             Log::info('[VerifyService] SUCCESS - Returning success response', [
                 'transaction_id' => $transaction->id,
             ]);
 
+            if (!$activated) {
+                return $this->errorResponse([], 'Payment verified but activation failed. Please contact support.', 500);
+            }
+
             return $this->successResponse([
-                'message' => 'Payment verified successfully. Your subscription is being activated.',
+                'message' => 'Payment verified successfully.',
                 'data' => [
                     'transaction_id' => $transaction->id,
-                    'status' => 'pending_webhook',
+                    'status' => 'success',
+                    'subscription' => $this->getSubscriptionData($transaction->android_id),
                 ],
             ]);
         } catch (\Exception $e) {
