@@ -40,7 +40,6 @@ class PaymentService
             $planId = $request->input('plan_id');
             $androidId = $user->android_id;
 
-            // Log::info('[CreateOrder] started', ['android_id' => $androidId, 'plan_id' => $planId]);
 
             $activeSubscription = UserSubscription::where('android_id', $androidId)
                 ->active()
@@ -78,10 +77,6 @@ class PaymentService
                 $metadata
             );
 
-            Log::info('[CreateOrder] Gateway order created', [
-                'order_id' => $gatewayResponse['order_id'],
-                'transaction_id' => $transactionId,
-            ]);
 
             // Store order metadata in cache (24 hours) so webhook/verify can create the DB row later
             $cacheKey = 'payment_order:' . $gatewayResponse['order_id'];
@@ -101,11 +96,6 @@ class PaymentService
 
             // Verify cache was stored
             $cacheVerify = Cache::get($cacheKey);
-            Log::info('[CreateOrder] Cache stored', [
-                'cache_key' => $cacheKey,
-                'cache_stored' => $cacheVerify !== null,
-                'cache_driver' => config('cache.default'),
-            ]);
 
             return $this->successResponse([
                 'message' => 'Order created successfully',
@@ -151,22 +141,10 @@ class PaymentService
             $gatewaySignature = $request->input('gateway_signature');
             $gatewayOrderId = $request->input('gateway_order_id');
 
-            Log::info('[VerifyService] Starting verification', [
-                'android_id' => $androidId,
-                'android_id_source' => $request->user() ? 'auth_user' : 'body',
-                'gateway_order_id' => $gatewayOrderId,
-                'gateway_payment_id' => $gatewayPaymentId,
-                'has_signature' => !empty($gatewaySignature),
-            ]);
 
             // Check if cache exists for this order
             $cacheKey = 'payment_order:' . $gatewayOrderId;
             $cachedOrder = Cache::get($cacheKey);
-            Log::info('[VerifyService] Cache check', [
-                'cache_key' => $cacheKey,
-                'cache_exists' => $cachedOrder !== null,
-                'cached_android_id' => $cachedOrder['android_id'] ?? null,
-            ]);
 
             // Try to find an existing transaction (webhook may have arrived first)
             // First try with the android_id from request/auth
@@ -176,7 +154,6 @@ class PaymentService
 
             // If not found and we have cached data, try with cached android_id
             if (!$transaction && $cachedOrder && $cachedOrder['android_id'] !== $androidId) {
-                Log::info('[VerifyService] Trying with cached android_id');
                 $transaction = PaymentTransaction::where('gateway_order_id', $gatewayOrderId)
                     ->where('android_id', $cachedOrder['android_id'])
                     ->first();
@@ -189,17 +166,9 @@ class PaymentService
             if (!$transaction) {
                 $transaction = PaymentTransaction::where('gateway_order_id', $gatewayOrderId)->first();
                 if ($transaction) {
-                    Log::info('[VerifyService] Found transaction without android_id filter', [
-                        'transaction_android_id' => $transaction->android_id,
-                    ]);
                 }
             }
 
-            Log::info('[VerifyService] Transaction lookup', [
-                'found' => $transaction !== null,
-                'transaction_id' => $transaction?->id,
-                'status' => $transaction?->status,
-            ]);
 
             if ($transaction && $transaction->isProcessed()) {
                 return $this->successResponse([
@@ -214,10 +183,6 @@ class PaymentService
             $gateway = $this->gatewayManager->getActiveGateway();
             $gatewayService = $this->gatewayManager->resolveService($gateway);
 
-            Log::info('[VerifyService] Calling gateway verifyPayment', [
-                'gateway' => $gateway->name,
-                'gateway_order_id' => $gatewayOrderId,
-            ]);
 
             $isVerified = $gatewayService->verifyPayment([
                 'gateway_order_id' => $gatewayOrderId,
@@ -225,10 +190,6 @@ class PaymentService
                 'gateway_signature' => $gatewaySignature,
             ]);
 
-            Log::info('[VerifyService] Gateway verification result', [
-                'is_verified' => $isVerified,
-                'gateway' => $gateway->name,
-            ]);
 
             if (!$isVerified) {
                 if ($transaction) {
@@ -267,16 +228,7 @@ class PaymentService
                 'success',
                 null
             );
-            Log::info('[Verify] Job dispatched (verify confirmed payment)', [
-                'order_id' => $gatewayOrderId,
-                'transaction_id' => $transaction->id,
-                'gateway' => $gatewayName,
-                'activated_sync' => $activated,
-            ]);
 
-            Log::info('[VerifyService] SUCCESS - Returning success response', [
-                'transaction_id' => $transaction->id,
-            ]);
 
             if (!$activated) {
                 return $this->errorResponse([], 'Payment verified but activation failed. Please contact support.', 500);
@@ -311,11 +263,6 @@ class PaymentService
         $cacheKey = 'payment_order:' . $gatewayOrderId;
         $cached = Cache::get($cacheKey);
 
-        Log::info('[CreateFromCache] Attempting cache lookup', [
-            'cache_key' => $cacheKey,
-            'cache_driver' => config('cache.default'),
-            'cache_found' => $cached !== null,
-        ]);
 
         if (!$cached) {
             Log::warning('[CreateFromCache] Cache miss', [
@@ -345,11 +292,6 @@ class PaymentService
 
         Cache::forget($cacheKey);
 
-        Log::info('[CreateFromCache] Transaction created or found', [
-            'transaction_id' => $transaction->id,
-            'order_id' => $gatewayOrderId,
-            'was_recently_created' => $transaction->wasRecentlyCreated,
-        ]);
 
         return $transaction;
     }
@@ -420,10 +362,6 @@ class PaymentService
 
             DB::commit();
 
-            Log::info('[ProcessPayment] Success', [
-                'transaction_id' => $transaction->id,
-                'android_id' => $user->android_id,
-            ]);
 
             return true;
         } catch (\Exception $e) {

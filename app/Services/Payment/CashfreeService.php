@@ -79,7 +79,6 @@ class CashfreeService implements PaymentGatewayInterface
                 $payload
             );
 
-            info("Response : ", ['response' => $response->body()]);
             if (!$response->successful()) {
                 Log::error('Cashfree createOrder failed', [
                     'status'  => $response->status(),
@@ -91,11 +90,6 @@ class CashfreeService implements PaymentGatewayInterface
 
             $data = $response->json();
 
-            Log::info('Cashfree createOrder success', [
-                'order_id'           => $data['order_id'],
-                'cf_order_id'        => $data['cf_order_id'],
-                'payment_session_id' => $data['payment_session_id'],
-            ]);
 
             return [
                 'success'            => true,
@@ -140,10 +134,6 @@ class CashfreeService implements PaymentGatewayInterface
             $data   = $response->json();
             $status = strtoupper($data['order_status'] ?? '');
 
-            Log::info('Cashfree verifyPayment status', [
-                'order_id' => $orderId,
-                'status'   => $status,
-            ]);
 
             // PAID means payment was successful
             return $status === 'PAID';

@@ -31,10 +31,6 @@ class VideoAccessService
 
         $cachedVip = Cache::get(self::VIP_ACCESS_CACHE_PREFIX . $androidId);
         if ($cachedVip !== null) {
-            Log::info('[VideoAccess] Access granted (VIP cache hit)', [
-                'android_id' => $androidId,
-                'subscription_expires_at' => $cachedVip,
-            ]);
             return $this->successResponse([
                 'message' => 'Video access granted',
                 'data' => [
@@ -66,10 +62,6 @@ class VideoAccessService
             if ($user->is_vip && $user->hasActiveSubscription()) {
                 $expiresAt = $user->subscription?->end_date?->format('Y-m-d');
                 Cache::put(self::VIP_ACCESS_CACHE_PREFIX . $androidId, $expiresAt, self::VIP_ACCESS_CACHE_TTL);
-                Log::info('[VideoAccess] Access granted (VIP, active subscription)', [
-                    'android_id' => $androidId,
-                    'subscription_expires_at' => $expiresAt,
-                ]);
                 return $this->successResponse([
                     'message' => 'Video access granted',
                     'data' => [
@@ -91,10 +83,6 @@ class VideoAccessService
                 $user->save();
 
                 DB::commit();
-                Log::info('[VideoAccess] Access granted (free quota)', [
-                    'android_id' => $androidId,
-                    'remaining_count' => $user->video_click_count,
-                ]);
                 return $this->successResponse([
                     'message' => 'Video access granted',
                     'data' => [
@@ -107,10 +95,6 @@ class VideoAccessService
             }
 
             DB::commit();
-            Log::info('[VideoAccess] Access denied (no remaining quota)', [
-                'android_id' => $androidId,
-                'remaining_count' => 0,
-            ]);
             return $this->forbiddenResponse([
                 'access_granted' => false,
                 'remaining_count' => 0,

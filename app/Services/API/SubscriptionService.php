@@ -22,7 +22,6 @@ class SubscriptionService
     {
         try {
             $androidId = $request->header('X-Android-ID', 'unknown');
-            Log::info('[Plans] Request received', ['android_id' => $androidId]);
 
             // Cache plans for 5 minutes for performance
             $plans = Cache::remember(self::CACHE_KEY_PLANS, self::CACHE_TTL_PLANS, function () {
@@ -41,14 +40,9 @@ class SubscriptionService
                             'currency'   => 'INR',
                         ];
                     });
-                Log::info('[Plans] Fetched from DB', ['count' => $fetched->count()]);
                 return $fetched;
             });
 
-            Log::info('[Plans] Returning plans (from cache or DB)', [
-                'count'    => count($plans),
-                'plan_ids' => collect($plans)->pluck('id')->toArray(),
-            ]);
 
             return $this->successResponse([
                 'message' => 'Plans retrieved successfully',

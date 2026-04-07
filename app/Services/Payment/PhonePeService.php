@@ -53,10 +53,6 @@ class PhonePeService implements PaymentGatewayInterface
             $redirectUrl = $response->getRedirectUrl();
             $orderId     = $merchantOrderId; // already set above; SDK response has no getMerchantOrderId()
 
-            Log::info('PhonePe createOrder success', [
-                'merchant_order_id' => $orderId,
-                'redirect_url'      => $redirectUrl,
-            ]);
 
             return [
                 'success'          => true,
@@ -84,10 +80,6 @@ class PhonePeService implements PaymentGatewayInterface
             $response = $this->client->getOrderStatus($merchantOrderId);
             $state    = strtoupper($response->getState() ?? '');
 
-            Log::info('PhonePe verifyPayment', [
-                'order_id' => $merchantOrderId,
-                'state'    => $state,
-            ]);
 
             return $state === 'COMPLETED';
         } catch (\Exception $e) {
@@ -128,11 +120,6 @@ class PhonePeService implements PaymentGatewayInterface
                 default                    => ($state === 'COMPLETED' ? 'success' : ($state === 'FAILED' ? 'failed' : 'pending')),
             };
 
-            Log::info('PhonePe webhook received', [
-                'event'    => $event,
-                'order_id' => $merchantOrderId,
-                'status'   => $status,
-            ]);
 
             return [
                 'event'      => $event,

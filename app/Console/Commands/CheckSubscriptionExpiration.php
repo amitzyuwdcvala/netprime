@@ -28,7 +28,6 @@ class CheckSubscriptionExpiration extends Command
 
     public function handle()
     {
-        Log::info('[Cron] Subscription expiration check started');
 
         $this->info('Checking for expired subscriptions...');
 
@@ -71,10 +70,6 @@ class CheckSubscriptionExpiration extends Command
             $this->info("Successfully expired {$expiredCount} subscriptions.");
             $this->info("Updated VIP status for {$updatedUsers} users.");
 
-            Log::info('[Cron] Subscription expiration check completed', [
-                'expired_count' => $expiredCount,
-                'updated_users' => $updatedUsers,
-            ]);
 
             return Command::SUCCESS;
 

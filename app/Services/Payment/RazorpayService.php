@@ -141,7 +141,6 @@ class RazorpayService implements PaymentGatewayInterface
 
             $valid = hash_equals($expectedSignature, $signature);
             if ($valid) {
-                Log::info('Razorpay webhook signature verified', []);
             }
             return $valid;
         } catch (\Exception $e) {
