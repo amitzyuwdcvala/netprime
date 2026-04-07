@@ -1,0 +1,290 @@
+/**
+* Techland Update CSS
+*/
+/* new sticky logo */
+.has-sticky-logo .sticky-logo {
+    display: none;
+}
+
+.top-bar.is-sticky .has-sticky-logo .sticky-logo {
+    display: block;
+}
+
+.top-bar.is-sticky .has-sticky-logo .main-logo {
+    display: none;
+}
+
+.top-bar.is-sticky.sticky-off {
+    position: absolute;
+}
+
+.feature a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.top-bar.sticky-off.in,
+.top-bar.sticky-off.out {
+    animation: none !important;
+    transition: none !important;
+}
+
+.top-bar.sticky-off {
+    background-color: inherit;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+}
+
+span.arrow:before {
+    content: "";
+    float: right;
+    width: 6px;
+    height: 6px;
+    border-bottom: 2px solid;
+    border-right: 2px solid;
+    border-color: currentColor;
+    margin-left: 10px;
+    margin-top: 4px;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+    -webkit-transform-origin: center;
+    -ms-transform-origin: center;
+    transform-origin: center;
+    -webkit-transition: border-color .3s ease-in-out;
+    -o-transition: border-color .3s ease-in-out;
+    transition: border-color .3s ease-in-out;
+}
+
+span.arrow {
+    position: relative;
+    display: inline-block;
+    padding: 0;
+    line-height: inherit;
+    font-size: inherit;
+    font-family: inherit;
+    position: absolute;
+    right: 12px;
+    width: 20px;
+    z-index: 9999999;
+    height: 20px;
+    pointer-events: all;
+}
+
+.polylang-js .circled, .polylang-js .lang-item a {
+    width: 25px;
+    height: 25px;
+}
+
+.polylang-js .lang-item a {
+    display: flex;
+    align-items: center;
+}
+
+.top-bar span.arrow {
+    display: none;
+}
+
+.woocommerce .topbar {
+    z-index: 13;
+}
+
+.single .my-6.my-md-11 {
+    clear: both;
+}
+
+.single .wp-block-button {
+    margin-bottom: 10px;
+}
+
+.single .wp-block-button.is-style-outline .wp-block-button__link {
+    background-color: #32373c;
+    border: none;
+    color: #fff;
+}
+
+.single .nt-theme-content ul li, .single .nt-theme-content ol li {
+    margin: 5px 0 0 5px !important;
+    padding: 0 !important;
+}
+
+.single .wp-block-cover-text {
+    color: #fff !important;
+}
+
+.single .page-links a, .page .page-links a, .single .page-links span, .page .page-links span {
+    margin-right: 5px !important;
+    font-size: 15px;
+}
+
+.logged-in-as {
+    margin: 0px !important;
+}
+
+.comment-form-cookies-consent label {
+    max-width: 90%;
+}
+
+/* Gutenberg updates */
+.wp-block-cover p.wp-block-cover-text {
+    color: #fff;
+}
+
+.wp-block-button {
+    margin-bottom: 15px;
+}
+
+.wp-block-gallery.nt-theme-content-list {
+    padding: 0px !important;
+    margin: 0 0 30px !important;
+}
+
+.wp-block-gallery.alignleft.columns-2.is-cropped.nt-theme-content-list {
+    margin-right: 15px !important;
+}
+
+.wp-block-quote.is-large, .wp-block-quote.is-style-large {
+    margin: 30px 0 32px 45px;
+    padding: 0 1em;
+}
+
+.wp-block-archives.wp-block-archives-dropdown .nice-select {
+    float: none;
+    max-width: 250px;
+}
+
+.wp-block-columns.alignwide.has-3-columns blockquote {
+    margin: 0 auto !important;
+}
+
+.wp-block-archives.wp-block-archives-list,
+.wp-block-archives.wp-block-archives-dropdown,
+.wp-block-categories.wp-block-categories-list,
+.wp-block-latest-comments.has-avatars.has-dates.has-excerpts,
+.wp-block-latest-comments,
+.wp-block-latest-posts.wp-block-latest-posts__list,
+.wp-block-latest-posts.is-grid {
+    margin-bottom: 30px !important;
+}
+
+.wp-block-media-text {
+    margin-bottom: 30px;
+}
+
+.nt-theme-content .wp-block-archives.wp-block-archives-dropdown .nice-select .option {
+    cursor: pointer;
+    font-weight: 400;
+    line-height: 40px;
+    list-style: none;
+    min-height: 40px;
+    outline: none;
+    padding-left: 18px;
+    padding-right: 29px;
+}
+
+.blocks-gallery-grid .blocks-gallery-image, .blocks-gallery-grid .blocks-gallery-item, .wp-block-gallery .blocks-gallery-image, .wp-block-gallery .blocks-gallery-item {
+    margin: 0 5px 5px 0 !important;
+}
+
+.wp-block-embed {
+    margin-bottom: 2em;
+}
+
+ul.wp-block-latest-posts.wp-block-latest-posts__list.has-dates li {
+    margin-bottom: 20px;
+}
+
+ul.wp-block-categories.wp-block-categories-list li,
+ul.wp-block-archives.wp-block-archives-list li {
+    margin-bottom: 10px;
+}
+
+.wp-block-gallery {
+    padding: 0 !important;
+    margin: 0 5px 20px 0px;
+}
+
+.wp-block-latest-comments {
+    padding: 0;
+}
+
+.wp-block-image {
+    margin-bottom: 2em;
+}
+
+.wp-block-cover {
+    margin: 0 25px 25px 0;
+}
+
+.wp-block-latest-posts.wp-block-latest-posts__list {
+    padding-left: 0;
+}
+body.wpb-js-composer .vc_tta.vc_general .vc_tta-panel-body {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.woocommerce .checkbox input[type=checkbox] {
+    width: auto;
+    height: auto;
+    visibility: visible;
+    opacity: 1;
+    cursor: pointer;
+}
+h3#ship-to-different-address label span{
+    color: #222;
+    line-height: 1.3;
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.75rem;
+}
+label.woocommerce-form__label.woocommerce-form__label-for-checkbox.checkbox {
+	padding:0;
+}
+#add_payment_method #payment ul.payment_methods li input, .woocommerce-cart #payment ul.payment_methods li input, .woocommerce-checkout #payment ul.payment_methods li input {
+margin: 0 3px 0 0;
+
+}
+
+
+.has-template-after-header-menu header:not(.is-sticky),
+.template-before-header-menu + header:not(.is-sticky){
+    position: relative;
+    top: 0!important;
+    width: 100%;
+}
+.template-before-header-menu + header.top-bar--light:not(.is-sticky),
+.has-template-after-header-menu header.top-bar--light:not(.is-sticky) {
+    color: #000;
+}
+a.box--link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+#btn-to-top,
+.s-btns a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.vc_editor .top-bar:not(.nt-shortcode-header),
+.vc_editor .top-bar.is-sticky,
+.vc_editor .top-bar.is-expanded .top-bar__collapse {
+    top: 0px!important;
+}
+.side-menu {
+    z-index: 99;
+}
+.vc_editor .vc_vc_column_inner .nt-column .vc_element {
+    width: 100%;
+    max-width: 100%;
+}
