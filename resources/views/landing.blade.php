@@ -32,6 +32,32 @@
     <script data-n-head="ssr" src="https://static.hbayy.com/plugins/snaptr.js" type="text/javascript"></script>
     <script data-n-head="ssr" src="{{ asset('build/lib/swiper3/swiper.min.js') }}" type="text/javascript"></script>
 
+    <!-- Meta Pixel Code -->
+    <script>
+        ! function(f, b, e, v, n, t, s) {
+            if (f.fbq) return;
+            n = f.fbq = function() {
+                n.callMethod ?
+                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+            };
+            if (!f._fbq) f._fbq = n;
+            n.push = n;
+            n.loaded = !0;
+            n.version = '2.0';
+            n.queue = [];
+            t = b.createElement(e);
+            t.async = !0;
+            t.src = v;
+            s = b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t, s)
+        }(window, document, 'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '1659665488294307');
+        fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+            src="https://www.facebook.com/tr?id=1659665488294307&ev=PageView&noscript=1" /></noscript>
+
     <link rel="preload" href="{{ asset('build/js/6b07c4e023016be6c959.css') }}" as="style">
     <link rel="preload" href="{{ asset('build/js/31ae725e603f9ab566c5.css') }}" as="style">
     <link rel="preload" href="{{ asset('build/js/4e47682bce8144b7238f.css') }}" as="style">
@@ -94,7 +120,7 @@
                                     <div class="lhome-bg1"
                                         style="background-image:url({{ asset('build/img/banner_bg@2x.png') }});"
                                         data-v-ec5fb5a4>
-                                        <div onclick="window.open('{{ url('build/apk/FlixyGO_1_5.apk') }}', '_blank')"
+                                        <div onclick="window.open('{{ url('build/apk/FlixyGO_2_1_0.apk') }}', '_blank')"
                                             class="lhome-bgdownload pointer" data-v-ec5fb5a4>
                                         </div>
                                     </div>
@@ -230,7 +256,7 @@
                                 <div class="lfooter-subtitle" data-v-4ae7e02b>Movie &amp; Stream</div>
                             </div>
                             <div class="lfooter-label" data-v-4ae7e02b>
-                                <div onclick="window.open('{{ url('build/apk/FlixyGO_1_5.apk') }}', '_blank')"
+                                <div onclick="window.open('{{ url('build/apk/FlixyGO_2_1_0.apk') }}', '_blank')"
                                     id="download_Fixed" class="lfooter-download pointer"
                                     style="background-image:url({{ asset('build/img/btn_download@2x.png') }});"
                                     data-v-4ae7e02b></div>
