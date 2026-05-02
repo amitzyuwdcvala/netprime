@@ -12,7 +12,6 @@ class PayUService implements PaymentGatewayInterface
     private $credentials;
     private $gateway;
 
-=
 
     public function setGateway(PaymentGateway $gateway): self
     {
