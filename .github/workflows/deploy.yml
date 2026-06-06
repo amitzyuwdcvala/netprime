@@ -28,10 +28,11 @@ jobs:
 
             sudo -u www-data php artisan migrate --force
 
+            sudo -u www-data php artisan optimize:clear || true
             sudo -u www-data php artisan config:cache || true
             sudo -u www-data php artisan route:cache || true
 
             sudo -u www-data php artisan storage:link || true
 
-            sudo systemctl restart netprime-queue || true
+            sudo systemctl restart netprime-org-queue || true
             sudo systemctl reload nginx || true
